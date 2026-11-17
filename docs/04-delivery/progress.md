@@ -11,7 +11,7 @@
 | 产品需求基线 | 已建立 | RINGS PRD v2.2.2 |
 | 文档体系拆分 | 首版已建立 | 本文档包 v1.0.0 |
 | 原型历史基线 | 已核验 | prototype.zip 中 V2.0 已恢复并校验 |
-| RINGS 新 UI / UX | 首页原型 v0.7 已完成（prototype_only） | 固定工作区、任务池快速编辑、顶部快速资料收藏等；其他业务页待设计 |
+| RINGS UI / UX 原型 | 首轮完成（prototype_only） | 首页 v0.7；候选事项 + 执行库 v0.1 |
 | 技术架构冻结 | 未开始 | 技术栈和数据方案未冻结 |
 | 正式开发 | 未验证 | prototype.zip 不含正式源码 |
 | 原型交互检查 | 已验证（prototype_only） | Chromium 检查 Task 创建 / 编辑 / 置顶、快速收藏、弹窗适配；不是正式应用自动化测试 |
@@ -59,8 +59,8 @@
 | RINGS 首页 HTML 原型 | 已完成首轮 v0.7（prototype_only） | 固定工作区、时间轴与任务池独立滚动、全屏专注、任务池顶部新增和卡片快速编辑、顶部快速资料收藏 |
 | 创建流程细化 | 原型已验证（prototype_only） | Goal 可选 Stage；Calendar Event 结束时间可事后补录；Task 创建后区分未安排和已安排的下一步 |
 | 原型交互检查 | 已完成（prototype_only） | Chromium 检查 Task 创建 / 编辑 / 置顶、快速收藏、弹窗尺寸、桌面与手机布局；无 JavaScript 运行错误 |
-| Candidate Pool / 资料收藏管理 | 待设计 | 下一阶段完善独立列表、分类、标签、编辑、归档和转换 |
-| Goal / Stage 详情 | 待设计 | 需要独立页面或抽屉方案 |
+| Candidate Pool | 首轮 v0.1 已上传（prototype_only） | 十种分类、生命周期、捕捉、详情和转换入口 |
+| 执行库（Task + Habit） | 首轮 v0.1 已上传（prototype_only） | 单一入口，页面内切换普通任务与习惯；完整编辑和统计待补 |
 | 正式技术架构与数据持久化 | 未开始 / 未冻结 | 当前原型数据不持久化 |
 | 正式应用开发 | 未验证 | 不能以 HTML 原型交互替代正式源码 |
 | 正式自动化测试 | 未开始 / 未验证 | 当前没有正式应用测试套件 |
@@ -81,3 +81,17 @@
 3. 设计 Goal / Stage 和 Task 详情页。
 4. 根据确认后的页面和流程冻结领域数据关系、存储和 API。
 5. 再进入正式应用开发与测试。
+
+
+## 9. 2026-11-18 执行库与候选事项原型更新
+
+| 交付项 | 状态 | 说明 |
+|---|---|---|
+| 执行库页面规格 | 已建立 | docs/02-design/execution-library-v0.1-spec.md |
+| 候选事项页面规格 | 已建立 | docs/02-design/candidate-pool-v0.1-spec.md |
+| 执行库 + 候选事项 HTML | 已上传（prototype_only） | prototypes/execution-candidate-v0.1/index.html |
+| 信息架构与一级导航 | 已更新 | 任务库、习惯合并为执行库入口；领域实体保持独立 |
+| 交互流程与 UI / UX | 已更新 | 新增执行库创建、习惯记录、Candidate 回顾和转换流程 |
+| 决策与需求追踪 | 已更新 | 新增 DEC-029 至 DEC-033 和原型验收项 |
+
+本轮新增原型未提供浏览器自动化验收证据。页面内存演示数据不等于数据库持久化；不将原型状态升级为 code_complete。
