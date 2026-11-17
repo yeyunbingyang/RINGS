@@ -225,3 +225,16 @@ HabitOccurrence 的预生成策略、补记录规则和统计口径仍待领域�
 Candidate 详情 → 点击“转为 Task” → 预填标题、描述和标签 → 用户确认并补充 Task 字段 → 创建正式 Task → Candidate 标记为 converted → Task 进入执行库的普通任务视图。
 
 新 Task 默认未安排；之后由用户创建 Plan。Candidate 不因存在 Deadline Hint 而自动转换或自动排期。
+
+
+## FLOW-20 编辑普通任务
+
+执行库选择普通任务 → 打开详情 → 点击“编辑” → 在编辑表单中修改标题、说明、优先级、预计时长、Deadline、Collection 和子任务 → 保存 → 更新原 Task。
+
+编辑不得自动创建 Plan，不得重置 Task 状态或已完成子任务计数。
+
+## FLOW-21 编辑习惯规则
+
+执行库选择习惯 → 打开详情 → 点击“编辑规则” → 修改名称、说明、重复规则和量词目标 → 保存 → 更新原 Habit 规则。
+
+编辑规则不修改既有 HabitOccurrence 记录；量词数值与单位必须同时填写或同时留空。
