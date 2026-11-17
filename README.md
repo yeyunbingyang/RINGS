@@ -14,6 +14,9 @@ RINGS 将信息捕捉、方向与目标规划、任务执行、可视化时间�
 - [核心业务规则](docs/01-product/business-rules.md)
 - [信息架构](docs/02-design/information-architecture.md)
 - [UI / UX 规范](docs/02-design/ui-ux-spec.md)
+- [执行库页面规格](docs/02-design/execution-library-v0.1-spec.md)
+- [候选事项页面规格](docs/02-design/candidate-pool-v0.1-spec.md)
+- [HTML 原型实施计划](docs/02-design/prototype-plan.md)
 - [技术架构](docs/03-engineering/architecture.md)
 - [项目路线图](docs/04-delivery/roadmap.md)
 - [当前进度](docs/04-delivery/progress.md)
@@ -34,3 +37,9 @@ RINGS 将信息捕捉、方向与目标规划、任务执行、可视化时间�
 
 当前仓库首先建立产品需求与设计基线。文档和历史原型参考不代表正式应用代码已经实现；
 开发进度以 [`docs/04-delivery/progress.md`](docs/04-delivery/progress.md) 为准。
+
+
+## 最新 HTML 原型
+
+- [执行库 + 候选事项原型 v0.1](prototypes/execution-candidate-v0.1/index.html)
+- [原型运行说明](prototypes/execution-candidate-v0.1/README.md)
