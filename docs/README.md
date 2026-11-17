@@ -1,0 +1,85 @@
+# RINGS（年轮）项目文档体系
+
+> 文档体系版本：v1.0.0  
+> 建立日期：2026-11-17  
+> 产品需求基线：RINGS PRD v2.2.2  
+> 原型参考基线：用户确认的 `prototype.zip`（内含 TDO V2.0 原型归档）
+
+## 1. 项目定义
+
+**RINGS（年轮）** 是一款个人事务与成长管理系统。它帮助用户捕捉信息和想法、规划方向与目标、管理执行任务和习惯，并通过可视化调度工作台安排时间、执行和复盘。
+
+品牌意象：年轮象征持续积累、时间沉淀与长期成长。
+
+## 2. 文档体系
+
+| 文档域 | 回答的问题 | 权威目录 |
+|---|---|---|
+| 项目总览 | 产品是什么、文档怎么维护 | `00-overview/` |
+| 产品定义 | 做什么、业务规则是什么 | `01-product/` |
+| 设计规范 | 页面如何组织、如何交互 | `02-design/` |
+| 技术设计 | 系统如何实现、数据如何存储 | `03-engineering/` |
+| 项目实施 | 当前做到哪里、下一步做什么 | `04-delivery/` |
+| 质量与治理 | 如何验收、如何管理变更 | `05-quality/`、`06-governance/` |
+
+## 3. 从这里开始
+
+建议阅读顺序：
+1. `00-overview/product-overview.md`
+2. `00-overview/glossary.md`
+3. `01-product/prd.md`
+4. `01-product/domain-model.md`
+5. `01-product/capability-map.md`
+6. `01-product/business-rules.md`
+7. `02-design/information-architecture.md`
+8. `02-design/prototype-plan.md`
+9. `03-engineering/architecture.md`
+10. `04-delivery/roadmap.md`
+11. `04-delivery/progress.md`
+12. `05-quality/traceability.md`
+
+## 4. 当前已确认的产品基线
+
+- 品牌名称：RINGS（年轮）；TDO 只作为历史项目名称。
+- 五层业务体系：捕捉层、规划层、执行层、可视化调度层、管理层。
+- 捕捉层统一使用 Candidate（候选事项），包含十种固定分类。
+- 候选事项分类使用“中文名称（English）”显示。
+- 规划层包含 Direction（发展方向）、Goal（目标）、Stage（阶段）。
+- 执行层包含 Task（任务）、Subtask（子任务）、Habit（习惯）和执行记录。
+- 可视化调度层是默认首页，主要从执行层调度已确认的任务。
+- 首页提供快速创建、未安排任务池和日 / 周 / 月 / 年视图。
+- Task 拖入时间线创建或调整 Plan（计划），不重复创建 Task。
+- Plan（计划）、Deadline（截止时间）、Calendar Event（事件）和 WorkSession（实际执行记录）必须区分。
+- 文件附件与外部引用分开；文件夹引用默认保存路径，不复制或扫描整个目录。
+
+## 5. 状态说明
+
+- **已确认**：用户明确确认，或已经纳入当前 PRD 基线。
+- **建议**：当前文档提出的设计建议，尚未得到用户最终确认。
+- **待决策**：需要在技术冻结或开发前明确。
+- **历史参考**：来自旧 PRD / 原型，不自动代表当前需求。
+- **未验证**：没有可核验的正式代码或测试证据。
+
+**原型可用不等于正式开发完成。** 当前确认的 `prototype.zip` 是 HTML 原型与需求资料归档，不包含正式应用源码。
+
+## 6. 文档与产品版本
+
+文档体系版本、PRD 版本、原型版本和软件版本分别管理，不互相替代。
+
+## 7. 关键入口
+
+- 产品需求：`01-product/prd.md`
+- 能力地图：`01-product/capability-map.md`
+- UI / UX：`02-design/ui-ux-spec.md`
+- 原型计划：`02-design/prototype-plan.md`
+- 技术架构：`03-engineering/architecture.md`
+- 实施计划：`04-delivery/implementation-plan.md`
+- 开发进度：`04-delivery/progress.md`
+- 需求追踪：`05-quality/traceability.md`
+- 决策记录：`06-governance/decision-log.md`
+- 原型历史基线：`00-overview/prototype-baseline.md`
+
+## 8. GitHub 仓库说明
+
+本仓库的 `docs/` 目录保存本项目文档基线。原始 `prototype.zip` 已用于核验；
+仓库保留可直接阅读的历史 PRD 与 HTML 原型参考，不重复提交原始二进制归档。
