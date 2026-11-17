@@ -20,7 +20,6 @@
 | 候选事项 | UI-01-01 | Candidate Pool、分类筛选、回顾 | CAP-01 |
 | 规划 | UI-02-01 | Direction、Goal、Stage | CAP-02 |
 | 执行库 | UI-03-01 | 普通任务、习惯、子任务与执行记录 | CAP-03 |
-
 | 复盘与统计 | UI-05-01 | Review、Statistics | CAP-05 |
 | 设置 | UI-05-02 | 数据、通知、快捷键、平台设置 | CAP-05、XCAP |
 
