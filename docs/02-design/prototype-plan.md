@@ -83,6 +83,8 @@ HTML 原型用于验证信息架构、页面布局、核心交互、业务对象
 ## 8. 历史状态
 
 - V2.0 历史原型：已归档并恢复校验。
-- RINGS 新首页原型：未开始。
-- RINGS 新 Candidate / Planning / Execution 页面：未开始。
+- RINGS 首页工作台 v0.7：首轮完成（prototype_only）。
+- Candidate Pool v0.1：首轮完成（prototype_only）。
+- 执行库 v0.1：首轮完成（prototype_only）。
+- 规划工作区、复盘与管理：待设计。
 - 当前视觉设计系统：待确定。
