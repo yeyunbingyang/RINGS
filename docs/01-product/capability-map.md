@@ -115,6 +115,12 @@
 P0 不代表已经开发，也不代表所有 P0 必须在同一个软件版本交付。
 
 
-## 5. 首页原型 v0.7 证据映射
+## 5. HTML 原型证据映射（2026-11-18）
 
-本轮首页原型覆盖 CAP-01 快速资料捕捉、CAP-02 Goal / Stage 创建交互、CAP-03 Task / Subtask 编辑、CAP-04 首页工作区与任务池。当前证据级别均为 prototype_only，不改变能力优先级，也不代表正式开发完成。
+| 原型 | 能力覆盖 | 证据级别 | 限制 |
+|---|---|---|---|
+| 首页工作台 v0.7 | CAP-01 快速资料捕捉、CAP-02 Goal / Stage 创建交互、CAP-03 Task / Subtask 编辑、CAP-04 首页工作区与任务池 | prototype_only | 既有首页原型检查记录；不代表正式开发完成 |
+| 候选事项 v0.1 | CAP-01 快速捕捉、十种分类、生命周期筛选、备注、资料引用与 Candidate 转换入口 | prototype_only | 转为 Goal / Direction / CalendarEvent 的完整表单待补 |
+| 执行库 v0.1 | CAP-03 Task、Subtask、Habit、HabitOccurrence 的页面入口与首轮交互 | prototype_only | HabitOccurrence 生成策略、完整编辑和正式执行记录待补 |
+
+原型证据只说明页面结构或交互已在 HTML 中呈现，不改变 CAP 优先级，也不代表 API、数据库或正式应用开发完成。
