@@ -43,3 +43,12 @@ RINGS 将信息捕捉、方向与目标规划、任务执行、可视化时间�
 
 - [执行库 + 候选事项原型 v0.1](prototypes/execution-candidate-v0.1/index.html)
 - [原型运行说明](prototypes/execution-candidate-v0.1/README.md)
+
+
+## 执行库与候选事项原型
+
+- [v0.1 页面基线](prototypes/execution-candidate-v0.1/index.html)
+- [v0.2 编辑增强](prototypes/execution-candidate-v0.2/index.html)
+- [v0.2 运行说明](prototypes/execution-candidate-v0.2/README.md)
+
+v0.2 增加普通任务和习惯规则编辑交互；仍是内存原型，浏览器验收待进行。
