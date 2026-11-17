@@ -16,4 +16,5 @@
 - Static prototype only; uses in-memory demo data.
 - No backend, database, API, authentication or persistence.
 - Candidate → Goal / Direction / CalendarEvent conversion forms are not implemented.
-- Browser automation and accessibility validation are pending.
+- Embedded JavaScript syntax check passed.
+- Browser automation, responsive visual inspection and accessibility validation are pending.
