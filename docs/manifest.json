@@ -1,6 +1,6 @@
 {
   "package": "RINGS Project Documentation",
-  "documentation_version": "1.0.0",
+  "documentation_version": "1.0.1",
   "created_on": "2026-11-17",
   "product_baseline": "RINGS PRD v2.2.2",
   "prototype_baseline": "prototype.zip / TDO V2.0 historical prototype",
@@ -12,5 +12,13 @@
     "references/legacy/TDO-V1.1-Statistics-Review-historical.html",
     "references/legacy/TDO-V1.3-Ideas-Panel-historical.html"
   ],
-  "repository_note": "The original prototype.zip was reviewed during documentation preparation. The repository contains the readable source PRD and historical HTML references; the original binary archive is intentionally not duplicated here."
+  "repository_note": "The original prototype.zip was reviewed during documentation preparation. The repository contains the readable source PRD and historical HTML references; the original binary archive is intentionally not duplicated here.",
+  "updated_on": "2026-11-18",
+  "latest_prototype": {
+    "name": "RINGS Home HTML Prototype",
+    "version": "v0.7",
+    "status": "prototype_only",
+    "sha256": "efde68427ba75c03f9143fc750977e6cabc153f0975fae8feb6c935b39bb08a8",
+    "artifact_note": "HTML prototype delivered separately in the ChatGPT conversation; this repository commit contains the corresponding specification and validation records."
+  }
 }

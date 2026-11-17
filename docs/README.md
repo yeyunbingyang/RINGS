@@ -1,6 +1,6 @@
 # RINGS（年轮）项目文档体系
 
-> 文档体系版本：v1.0.0  
+> 文档体系版本：v1.0.1  
 > 建立日期：2026-11-17  
 > 产品需求基线：RINGS PRD v2.2.2  
 > 原型参考基线：用户确认的 `prototype.zip`（内含 TDO V2.0 原型归档）
@@ -72,6 +72,7 @@
 - 能力地图：`01-product/capability-map.md`
 - UI / UX：`02-design/ui-ux-spec.md`
 - 原型计划：`02-design/prototype-plan.md`
+- 首页原型 v0.7 规格：`02-design/home-dashboard-v0.7-spec.md`
 - 技术架构：`03-engineering/architecture.md`
 - 实施计划：`04-delivery/implementation-plan.md`
 - 开发进度：`04-delivery/progress.md`
@@ -83,3 +84,12 @@
 
 本仓库的 `docs/` 目录保存本项目文档基线。原始 `prototype.zip` 已用于核验；
 仓库保留可直接阅读的历史 PRD 与 HTML 原型参考，不重复提交原始二进制归档。
+
+
+## 9. 最新首页原型
+
+- 首页原型规格：02-design/home-dashboard-v0.7-spec.md
+- 原型实施计划：02-design/prototype-plan.md
+- 本轮开发记录：04-delivery/dev-log-2026-11-18.md
+
+当前首页 HTML 原型版本为 v0.7，交互检查证据为 prototype_only。原型文件作为本次会话交付附件提供；本次 Git 提交同步的是规格、流程、进度和验收文档，不代表正式应用已实现。
