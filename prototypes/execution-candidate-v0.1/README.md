@@ -54,6 +54,7 @@ https://github.com/yeyunbingyang/RINGS/blob/main/prototypes/execution-candidate-
 - 不连接数据库、API、账号、提醒服务或真实文件系统。
 - Candidate 转为 Task 有交互演示；转为 Goal / Direction / CalendarEvent 仅展示目标选择和状态反馈，完整转换表单待后续补齐。
 - 当前不是正式应用，不代表已完成持久化、权限、同步、数据迁移或生产环境测试。
+- 已完成静态检查：HTML 中 script 标签成对，内嵌 JavaScript 语法解析通过；该检查不覆盖真实浏览器布局与交互。
 - 当前尚未提供本页面的浏览器自动化验收报告。
 
 ## 相关规格
