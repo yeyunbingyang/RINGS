@@ -34,13 +34,15 @@
 | 实施计划 | 初稿 |
 | 测试与追踪 | 首版模板已建立 |
 
-## 3. 下一步建议
+## 3. 当前推进顺序
 
-1. 评审 CAP-01 至 CAP-05 能力地图。
-2. 确认当前 PRD 中 P0 / P1 的范围冲突。
-3. 设计 RINGS 首页线框图和 HTML 原型。
-4. 冻结核心数据模型和 Desktop / Web 技术方案。
-5. 开始 Task → Plan → WorkSession 纵向开发闭环。
+1. 评审 Candidate Pool 与执行库 v0.1 的页面结构、字段和对象边界。
+2. 对新增页面进行桌面端、窄屏和主要交互的浏览器验收。
+3. 明确 HabitOccurrence 的生成、补记录、跳过和统计规则。
+4. 补齐 Candidate 转 Goal / Direction / CalendarEvent 的完整表单，以及 Task / Habit 编辑交互。
+5. 设计规划工作区与 Goal / Stage 详情。
+6. 页面评审通过后冻结数据模型、存储和 API。
+7. 开始 Task → Plan → WorkSession 纵向开发闭环。
 
 ## 4. 更新记录
 
