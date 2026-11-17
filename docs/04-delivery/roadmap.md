@@ -10,7 +10,7 @@
 
 ## 阶段 1：UI / UX 设计
 
-交付：信息架构、首页线框图、首页 HTML 原型、Candidate Pool / Detail 原型、Task Library / Detail 原型、Planning Workspace 原型、UI 组件和交互规范。
+交付：信息架构、首页线框图、首页 HTML 原型、Candidate Pool / Detail 原型、统一执行库（Task + Habit）原型、Planning Workspace 原型、UI 组件和交互规范。
 
 退出条件：用户验证首页拖放调度闭环；核心页面流程可演示；主要空状态、错误状态和冲突状态已覆盖。
 
@@ -44,3 +44,8 @@ Review / Statistics、Collection / Relation、备份导出增强、批量调度�
 ## 阶段 6：质量、发布和迭代
 
 完整测试、性能和稳定性、数据恢复演练、打包和发布、发布说明、用户反馈闭环。
+
+
+## 页面架构补充（2026-11-18）
+
+执行层的页面入口调整为统一“执行库”，不再分别建设 Task Library 和 Habit 两个一级页面。Task、Habit、HabitOccurrence 的领域模型与业务规则保持独立。Candidate Pool 继续作为捕捉层独立页面。
