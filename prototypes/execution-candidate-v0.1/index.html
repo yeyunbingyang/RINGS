@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RINGS · 执行库与候选事项原型 v0.1</title>
+<style>
+:root{
+  --bg:#f5f6f3;--surface:#fff;--surface-2:#f8faf7;--surface-3:#eef2ed;
+  --ink:#202923;--muted:#758078;--line:#e4e9e2;--line-strong:#d6ded4;
+  --green:#39765c;--green-dark:#285d46;--green-soft:#e8f2eb;
+  --coral:#c96f57;--coral-soft:#faeee9;--blue:#527a9b;--blue-soft:#edf3f8;
+  --amber:#a77a35;--amber-soft:#f8f1e3;--purple:#7a6a9b;--purple-soft:#f1eef7;
+  --red:#b85b56;--red-soft:#faeeee;--shadow:0 12px 36px rgba(35,54,41,.06);
+  --radius:15px;--sidebar:224px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.55 Inter,"Segoe UI","Microsoft YaHei",sans-serif}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid rgba(57,118,92,.18);outline-offset:1px}
+.app{min-height:100vh;display:grid;grid-template-columns:var(--sidebar) minmax(0,1fr)}
+.sidebar{height:100vh;position:sticky;top:0;background:#fbfcfa;border-right:1px solid var(--line);padding:22px 14px;display:flex;flex-direction:column;gap:24px;z-index:5}
+.brand{display:flex;align-items:center;gap:10px;padding:0 8px}
+.brand-mark{width:34px;height:34px;border-radius:11px;background:var(--green);color:#fff;display:grid;place-items:center;font-weight:800;font-size:17px;position:relative}
+.brand-mark:after{content:"";position:absolute;width:17px;height:17px;border:1px solid rgba(255,255,255,.72);border-radius:50%}
+.brand strong{font-size:16px;letter-spacing:.09em}.brand small{display:block;color:#91a096;font-size:9px;letter-spacing:.16em;margin-top:1px}
+.nav-label{font-size:10px;letter-spacing:.13em;color:#9aa49c;font-weight:750;padding:0 10px 7px}
+.nav-group{display:grid;gap:5px}
+.nav-btn{width:100%;border:0;background:transparent;color:#637067;text-align:left;padding:10px 11px;border-radius:10px;display:flex;align-items:center;gap:10px;font-size:13px}
+.nav-btn:hover{background:var(--surface-3)}
+.nav-btn.active{background:var(--green-soft);color:var(--green-dark);font-weight:700}
+.nav-icon{width:19px;text-align:center;font-size:15px}
+.nav-count{margin-left:auto;background:#e9eee8;color:#738077;border-radius:99px;padding:1px 7px;font-size:10px}
+.sidebar-bottom{margin-top:auto;border:1px solid var(--line);border-radius:13px;background:#fff;padding:12px}
+.sidebar-bottom b{font-size:11px;display:block}.sidebar-bottom small{color:var(--muted);font-size:10px}
+.main{min-width:0}
+.topbar{height:68px;position:sticky;top:0;z-index:4;background:rgba(250,252,249,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 28px}
+.crumb{font-size:10px;color:#9aa49c}.top-title{font-size:17px;font-weight:760;letter-spacing:-.025em}
+.top-actions{display:flex;align-items:center;gap:8px}
+.btn{border:1px solid var(--line-strong);background:#fff;color:#526057;border-radius:9px;padding:8px 11px;font-size:12px;display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap}
+.btn:hover{background:#f8faf7;border-color:#bdcbbf}
+.btn.primary{background:var(--green);border-color:var(--green);color:#fff}
+.btn.primary:hover{background:var(--green-dark)}
+.btn.soft{background:var(--green-soft);border-color:#d8e8dc;color:var(--green-dark)}
+.btn.ghost{border-color:transparent;background:transparent}
+.btn.danger{background:var(--red-soft);border-color:#f0d9d8;color:var(--red)}
+.btn.small{padding:5px 8px;font-size:11px;border-radius:7px}
+.avatar{width:30px;height:30px;border-radius:50%;background:#e9eee8;color:#5f7164;display:grid;place-items:center;font-size:10px;font-weight:700}
+.viewport{padding:23px 28px 40px;max-width:1600px;margin:0 auto}
+.page{display:none}.page.active{display:block}
+.page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:17px}
+.kicker{font-size:9px;letter-spacing:.17em;color:#96a197;font-weight:800}
+.page-title{font-size:25px;line-height:1.2;font-weight:780;letter-spacing:-.04em;margin:4px 0 6px}
+.page-sub{font-size:12px;color:var(--muted)}
+.head-actions{display:flex;gap:8px;align-items:center}
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px;margin-bottom:15px}
+.metric{background:#fff;border:1px solid var(--line);border-radius:13px;padding:12px 14px;min-height:79px}
+.metric span{font-size:10px;color:var(--muted);display:block}
+.metric b{font-size:22px;letter-spacing:-.04em;display:block;margin-top:2px}
+.metric small{font-size:10px;color:#98a39a}
+.workspace{display:grid;grid-template-columns:205px minmax(350px,1fr) minmax(280px,330px);gap:13px;align-items:start}
+.filter-panel,.list-panel,.detail-panel,.panel{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.filter-panel{position:sticky;top:84px}
+.filter-head,.list-head,.detail-head{padding:13px 14px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.filter-head b,.list-head b,.detail-head b{font-size:12px}
+.filter-body{padding:11px}
+.filter-section{margin-bottom:15px}
+.filter-title{font-size:10px;color:#9aa49c;font-weight:750;letter-spacing:.08em;margin:0 0 6px;padding:0 5px}
+.filter-link{width:100%;border:0;background:transparent;border-radius:8px;padding:7px 8px;text-align:left;color:#647168;font-size:11px;display:flex;justify-content:space-between;align-items:center}
+.filter-link:hover{background:var(--surface-2)}
+.filter-link.active{background:var(--green-soft);color:var(--green-dark);font-weight:700}
+.filter-link small{font-size:10px;color:#9aa49c}
+.filter-link.active small{color:var(--green)}
+.filter-sep{height:1px;background:var(--line);margin:11px 2px}
+.toolbar{padding:11px 13px;border-bottom:1px solid var(--line);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.search{flex:1;min-width:140px;position:relative}
+.search input{width:100%;border:1px solid var(--line);border-radius:9px;background:#fbfcfa;padding:8px 10px 8px 30px;font-size:11px;color:var(--ink)}
+.search:before{content:"⌕";position:absolute;left:10px;top:4px;font-size:17px;color:#9aa49c}
+.segment{display:flex;gap:3px;background:#f1f4f0;padding:3px;border-radius:9px}
+.segment button{border:0;background:transparent;border-radius:7px;padding:6px 9px;font-size:10px;color:#718077;white-space:nowrap}
+.segment button.active{background:#fff;color:var(--green-dark);box-shadow:0 1px 3px #263b2c12;font-weight:700}
+.chips{display:flex;gap:6px;flex-wrap:wrap;padding:10px 13px;border-bottom:1px solid var(--line)}
+.chip{border:1px solid var(--line);background:#fff;color:#718077;border-radius:99px;padding:4px 9px;font-size:10px}
+.chip:hover{border-color:#b9cbbd}
+.chip.active{background:var(--green-soft);border-color:#d3e5d8;color:var(--green-dark);font-weight:700}
+.list-meta{padding:8px 13px;display:flex;align-items:center;justify-content:space-between;color:#8d9990;font-size:10px}
+.items{max-height:calc(100vh - 360px);min-height:330px;overflow:auto}
+.item{padding:13px 14px;border-bottom:1px solid #eef1ed;cursor:pointer;transition:background .12s}
+.item:last-child{border-bottom:0}
+.item:hover{background:#fafcf9}
+.item.selected{background:#f2f7f2;box-shadow:inset 3px 0 var(--green)}
+.item-top{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:5px}
+.item-title{font-size:13px;font-weight:720;line-height:1.35;flex:1;min-width:130px}
+.item-desc{font-size:10px;color:#7e8981;line-height:1.5;margin:4px 0 8px}
+.item-bottom{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.meta{font-size:10px;color:#8c9890}
+.pill{display:inline-flex;align-items:center;border-radius:99px;padding:3px 7px;font-size:9px;white-space:nowrap;background:#eff2ef;color:#758078}
+.pill.green{background:var(--green-soft);color:var(--green-dark)}
+.pill.coral{background:var(--coral-soft);color:var(--coral)}
+.pill.blue{background:var(--blue-soft);color:var(--blue)}
+.pill.amber{background:var(--amber-soft);color:var(--amber)}
+.pill.purple{background:var(--purple-soft);color:var(--purple)}
+.pill.red{background:var(--red-soft);color:var(--red)}
+.priority{font-size:9px;color:var(--coral);font-weight:700}
+.detail-panel{position:sticky;top:84px;max-height:calc(100vh - 100px);overflow:auto}
+.detail-body{padding:14px}
+.detail-kicker{font-size:9px;letter-spacing:.13em;color:#98a39a;font-weight:800}
+.detail-title{font-size:17px;font-weight:780;line-height:1.3;margin:5px 0 8px}
+.detail-desc{font-size:11px;color:#748078;line-height:1.6;margin:0 0 12px}
+.detail-actions{display:flex;gap:6px;flex-wrap:wrap;margin:11px 0 14px}
+.detail-section{border-top:1px solid var(--line);padding:12px 0}
+.detail-section h4{font-size:10px;margin:0 0 8px;color:#68766d}
+.detail-row{display:flex;justify-content:space-between;gap:10px;font-size:10px;padding:4px 0;color:#839087}
+.detail-row b{font-weight:650;color:#46544a;text-align:right}
+.note{background:#f7f9f6;border-radius:9px;padding:9px 10px;font-size:10px;color:#6f7c72;margin:6px 0}
+.tag-row{display:flex;gap:5px;flex-wrap:wrap}
+.empty{padding:32px 16px;text-align:center;color:#8c9890;font-size:11px}
+.empty b{display:block;color:#536258;margin-bottom:4px}
+.mini-progress{height:5px;background:#edf1ed;border-radius:99px;overflow:hidden;margin:7px 0 2px}
+.mini-progress i{height:100%;display:block;background:var(--green);border-radius:99px}
+.inline-actions{display:flex;gap:6px;align-items:center}
+.modal-backdrop{display:none;position:fixed;inset:0;background:rgba(24,36,28,.38);z-index:20;align-items:center;justify-content:center;padding:18px}
+.modal-backdrop.show{display:flex}
+.modal{width:min(590px,100%);max-height:90vh;background:#fff;border:1px solid var(--line);border-radius:17px;box-shadow:0 24px 70px rgba(25,43,31,.22);display:flex;flex-direction:column;overflow:hidden}
+.modal-head{padding:15px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+.modal-head b{font-size:14px}
+.modal-body{padding:16px 18px;overflow:auto}
+.modal-foot{padding:12px 18px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:8px}
+.field{display:grid;gap:5px;margin-bottom:12px}
+.field label{font-size:10px;color:#69776e;font-weight:700}
+.field input,.field select,.field textarea{width:100%;border:1px solid var(--line-strong);border-radius:9px;background:#fcfdfb;padding:9px 10px;font-size:11px;color:var(--ink)}
+.field textarea{min-height:70px;resize:vertical}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.help{font-size:9px;color:#99a39b;margin-top:2px}
+.type-choice{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:13px}
+.type-card{border:1px solid var(--line);background:#fbfcfa;border-radius:10px;padding:10px;text-align:left;color:#66736a}
+.type-card.active{border-color:#9ebca6;background:var(--green-soft);color:var(--green-dark)}
+.type-card b{display:block;font-size:11px}.type-card small{font-size:9px;color:#89968d}
+.hidden{display:none!important}
+.toast{position:fixed;bottom:22px;left:50%;transform:translate(-50%,15px);opacity:0;pointer-events:none;background:#26362b;color:#fff;padding:9px 14px;border-radius:9px;font-size:11px;z-index:40;transition:.2s}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.footer-note{font-size:9px;color:#9aa49c;padding:10px 14px;border-top:1px solid var(--line);background:#fbfcfa}
+@media(max-width:1180px){
+ .workspace{grid-template-columns:185px minmax(300px,1fr)}.detail-panel{grid-column:1/-1;position:static;max-height:none}
+ .detail-body{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}.detail-actions{grid-column:1/-1}
+}
+@media(max-width:800px){
+ .app{grid-template-columns:1fr}.sidebar{height:auto;position:sticky;padding:8px 10px;gap:8px;border-right:0;border-bottom:1px solid var(--line)}
+ .brand{padding:0 4px}.brand-mark{width:28px;height:28px}.brand small{display:none}
+ .nav-group{display:flex;overflow:auto;gap:4px}.nav-label,.sidebar-bottom{display:none}
+ .nav-btn{white-space:nowrap;width:auto;padding:7px 9px;font-size:11px}
+ .topbar{height:58px;padding:0 13px}.top-actions .btn:not(.primary),.avatar{display:none}
+ .viewport{padding:15px 12px 28px}.page-head{flex-direction:column}.page-title{font-size:22px}
+ .metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.metric{min-height:68px;padding:9px 11px}.metric b{font-size:19px}
+ .workspace{grid-template-columns:1fr;gap:9px}.filter-panel{position:static}
+ .filter-body{display:flex;gap:10px;overflow:auto;padding:8px}.filter-section{display:flex;align-items:center;gap:4px;margin:0;white-space:nowrap}
+ .filter-title{display:none}.filter-link{width:auto;white-space:nowrap}
+ .filter-sep{display:none}.items{max-height:none;min-height:200px}
+ .detail-panel{position:static;max-height:none}.detail-body{display:block}
+ .toolbar{padding:9px}.chips{flex-wrap:nowrap;overflow:auto}.chip{white-space:nowrap}
+ .form-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand"><div class="brand-mark">R</div><div><strong>RINGS</strong><small>CAPTURE · PLAN · EXECUTE</small></div></div>
+  <div class="nav-group">
+    <div class="nav-label">工作台</div>
+    <button class="nav-btn" data-page="home"><span class="nav-icon">◷</span>可视化调度</button>
+    <button class="nav-btn active" data-page="execution"><span class="nav-icon">▤</span>执行库 <span class="nav-count" id="execNavCount">18</span></button>
+    <button class="nav-btn" data-page="candidate"><span class="nav-icon">◇</span>候选事项 <span class="nav-count" id="candidateNavCount">24</span></button>
+    <button class="nav-btn" data-page="planning"><span class="nav-icon">◎</span>规划</button>
+  </div>
+  <div class="nav-group">
+    <div class="nav-label">回顾与管理</div>
+    <button class="nav-btn" data-page="review"><span class="nav-icon">↻</span>复盘与统计</button>
+    <button class="nav-btn" data-page="settings"><span class="nav-icon">⚙</span>设置</button>
+  </div>
+  <div class="sidebar-bottom"><b>年轮 · 持续积累</b><small>原型数据仅用于页面交互演示，不连接正式数据库。</small></div>
+</aside>
+<main class="main">
+<header class="topbar">
+  <div><div class="crumb" id="crumb">执行层 · Execution</div><div class="top-title" id="topTitle">执行库</div></div>
+  <div class="top-actions">
+    <button class="btn" id="quickCaptureTop">＋ 快速捕捉</button>
+    <button class="btn primary" id="topCreate">＋ 新建执行事项</button>
+    <div class="avatar">R</div>
+  </div>
+</header>
+<div class="viewport">
+
+<section class="page active" id="execution">
+  <div class="page-head">
+    <div><div class="kicker">EXECUTION LIBRARY</div><div class="page-title">执行库</div><div class="page-sub">统一管理已经确认要执行的任务与习惯；同一入口，不混淆业务对象。</div></div>
+    <div class="head-actions"><button class="btn primary" id="createExecution">＋ 新建执行事项</button></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><span>未安排任务</span><b id="metricUnscheduled">6</b><small>等待进入时间计划</small></div>
+    <div class="metric"><span>进行中任务</span><b id="metricInProgress">3</b><small>已开始但尚未完成</small></div>
+    <div class="metric"><span>今日习惯待执行</span><b id="metricHabits">2</b><small>按 HabitOccurrence 统计</small></div>
+    <div class="metric"><span>本周已完成</span><b id="metricDone">9</b><small>任务与习惯执行记录</small></div>
+  </div>
+  <div class="workspace">
+    <aside class="filter-panel">
+      <div class="filter-head"><b>执行视图</b><button class="btn ghost small" id="clearExecFilters">重置</button></div>
+      <div class="filter-body">
+        <div class="filter-section">
+          <div class="filter-title">对象类型</div>
+          <button class="filter-link active" data-kind="all">全部执行 <small id="allCount">18</small></button>
+          <button class="filter-link" data-kind="task">普通任务 <small id="taskCount">12</small></button>
+          <button class="filter-link" data-kind="habit">习惯 <small id="habitCount">6</small></button>
+        </div>
+        <div class="filter-sep"></div>
+        <div class="filter-section" id="taskStatusFilters">
+          <div class="filter-title">任务状态</div>
+          <button class="filter-link active" data-status="all">全部任务</button>
+          <button class="filter-link" data-status="unscheduled">未安排</button>
+          <button class="filter-link" data-status="planned">已安排</button>
+          <button class="filter-link" data-status="in_progress">进行中</button>
+          <button class="filter-link" data-status="waiting">等待 / 阻塞</button>
+          <button class="filter-link" data-status="completed">已完成</button>
+        </div>
+        <div class="filter-sep"></div>
+        <div class="filter-section" id="habitStatusFilters">
+          <div class="filter-title">习惯视图</div>
+          <button class="filter-link" data-habit-filter="today">今日</button>
+          <button class="filter-link" data-habit-filter="all">全部习惯</button>
+          <button class="filter-link" data-habit-filter="paused">暂停中</button>
+        </div>
+        <div class="filter-sep"></div>
+        <div class="filter-section">
+          <div class="filter-title">分类目录</div>
+          <button class="filter-link">全部 Collection</button>
+          <button class="filter-link">工作 / 产品研发</button>
+          <button class="filter-link">学习 / AIGC</button>
+          <button class="filter-link">生活 / 健康</button>
+        </div>
+      </div>
+    </aside>
+    <section class="list-panel">
+      <div class="list-head"><b>执行事项</b><span class="pill green" id="execListCount">18 项</span></div>
+      <div class="toolbar">
+        <div class="search"><input id="execSearch" placeholder="搜索任务、习惯..." /></div>
+        <div class="segment" id="execViewSegment">
+          <button class="active" data-view="all">全部</button><button data-view="task">任务</button><button data-view="habit">习惯</button>
+        </div>
+      </div>
+      <div class="chips" id="execQuickFilters">
+        <button class="chip active" data-quick="all">全部</button>
+        <button class="chip" data-quick="unscheduled">未安排</button>
+        <button class="chip" data-quick="today">今日待执行</button>
+        <button class="chip" data-quick="high">高优先级</button>
+      </div>
+      <div class="list-meta"><span id="execListHint">按最近更新排序</span><span>点击事项查看详情</span></div>
+      <div class="items" id="executionItems"></div>
+      <div class="footer-note">习惯规则与单次执行实例分开管理；“未安排”只作用于普通任务。</div>
+    </section>
+    <aside class="detail-panel" id="executionDetail"></aside>
+  </div>
+</section>
+
+<section class="page" id="candidate">
+  <div class="page-head">
+    <div><div class="kicker">CANDIDATE POOL</div><div class="page-title">候选事项</div><div class="page-sub">先收集，再判断；不要求每条信息立即变成任务。</div></div>
+    <div class="head-actions"><button class="btn" id="reviewCandidates">待回顾 <span id="reviewCount">8</span></button><button class="btn primary" id="newCandidate">＋ 快速捕捉</button></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><span>全部候选事项</span><b id="candidateTotal">24</b><small>包含各类信息与线索</small></div>
+    <div class="metric"><span>待回顾</span><b id="candidateReview">8</b><small>新收集 / 待澄清</small></div>
+    <div class="metric"><span>孵化中</span><b id="candidateIncubating">5</b><small>等待条件成熟</small></div>
+    <div class="metric"><span>资料引用</span><b id="candidateResources">7</b><small>Resource 类型</small></div>
+  </div>
+  <div class="workspace">
+    <aside class="filter-panel">
+      <div class="filter-head"><b>候选事项视图</b><button class="btn ghost small" id="clearCandidateFilters">重置</button></div>
+      <div class="filter-body">
+        <div class="filter-section">
+          <div class="filter-title">生命周期</div>
+          <button class="filter-link active" data-cstatus="all">全部候选 <small>24</small></button>
+          <button class="filter-link" data-cstatus="review">待回顾 <small>8</small></button>
+          <button class="filter-link" data-cstatus="incubating">孵化中 <small>5</small></button>
+          <button class="filter-link" data-cstatus="retained">已保留</button>
+          <button class="filter-link" data-cstatus="converted">已转换</button>
+          <button class="filter-link" data-cstatus="archived">已归档</button>
+        </div>
+        <div class="filter-sep"></div>
+        <div class="filter-section">
+          <div class="filter-title">时间筛选</div>
+          <button class="filter-link">近期需跟进</button>
+          <button class="filter-link">已过跟进时间</button>
+          <button class="filter-link">最近收集</button>
+        </div>
+        <div class="filter-sep"></div>
+        <div class="filter-section">
+          <div class="filter-title">标签与目录</div>
+          <button class="filter-link">全部 Collection</button>
+          <button class="filter-link">AI 工具</button>
+          <button class="filter-link">产品设计</button>
+          <button class="filter-link">待读</button>
+        </div>
+      </div>
+    </aside>
+    <section class="list-panel">
+      <div class="list-head"><b>候选事项列表</b><span class="pill green" id="candidateListCount">24 条</span></div>
+      <div class="toolbar">
+        <div class="search"><input id="candidateSearch" placeholder="搜索标题、内容或备注..." /></div>
+        <select id="candidateSort" class="btn"><option value="updated">最近更新</option><option value="created">最近收集</option><option value="title">名称排序</option></select>
+      </div>
+      <div class="chips" id="candidateCategories">
+        <button class="chip active" data-category="all">全部分类</button>
+        <button class="chip" data-category="Memo">备忘</button>
+        <button class="chip" data-category="Resource">资料</button>
+        <button class="chip" data-category="Idea">想法</button>
+        <button class="chip" data-category="Wish">愿望</button>
+        <button class="chip" data-category="Task Candidate">待办种子</button>
+        <button class="chip" data-category="Issue">问题</button>
+        <button class="chip" data-category="Decision">待决策</button>
+        <button class="chip" data-category="Commitment">承诺</button>
+        <button class="chip" data-category="Event">事件</button>
+        <button class="chip" data-category="Waiting">等待</button>
+      </div>
+      <div class="list-meta"><span>分类说明“是什么”，状态说明“现在如何”</span><span>支持多选与批量归档（原型示意）</span></div>
+      <div class="items" id="candidateItems"></div>
+      <div class="footer-note">Candidate 不进入首页未安排任务池；确认转换为 Task 后，才可进入执行与调度流程。</div>
+    </section>
+    <aside class="detail-panel" id="candidateDetail"></aside>
+  </div>
+</section>
+
+<section class="page" id="home">
+  <div class="page-head"><div><div class="kicker">SCHEDULING WORKSPACE</div><div class="page-title">可视化调度</div><div class="page-sub">默认首页原型入口占位；本轮聚焦执行库与候选事项。</div></div></div>
+  <div class="panel"><div class="empty"><b>首页工作台</b>本原型用于评审执行库与候选事项两个页面。返回左侧导航继续查看。</div></div>
+</section>
+<section class="page" id="planning"><div class="page-head"><div><div class="kicker">PLANNING</div><div class="page-title">规划</div><div class="page-sub">Direction / Goal / Stage 页面将在后续原型阶段设计。</div></div></div><div class="panel"><div class="empty">规划工作区占位</div></div></section>
+<section class="page" id="review"><div class="page-head"><div><div class="kicker">REVIEW</div><div class="page-title">复盘与统计</div></div></div><div class="panel"><div class="empty">复盘与统计页面占位</div></div></section>
+<section class="page" id="settings"><div class="page-head"><div><div class="kicker">SETTINGS</div><div class="page-title">设置</div></div></div><div class="panel"><div class="empty">设置页面占位</div></div></section>
+
+</div>
+</main>
+</div>
+
+<div class="modal-backdrop" id="executionModal">
+ <div class="modal">
+  <div class="modal-head"><b id="executionModalTitle">新建执行事项</b><button class="btn ghost small" data-close="executionModal">✕</button></div>
+  <div class="modal-body">
+   <div class="type-choice">
+    <button class="type-card active" data-newtype="task"><b>普通任务</b><small>一次性或阶段性行动</small></button>
+    <button class="type-card" data-newtype="habit"><b>习惯</b><small>按重复规则持续执行</small></button>
+   </div>
+   <div class="field"><label>名称 *</label><input id="newExecTitle" placeholder="例如：整理 RINGS 页面需求" /></div>
+   <div class="field" id="taskFields">
+    <label>任务说明</label><textarea id="newTaskDesc" placeholder="补充行动背景、完成标准或下一步"></textarea>
+    <div class="form-grid">
+     <div class="field"><label>优先级</label><select id="newTaskPriority"><option>普通</option><option>高</option><option>低</option></select></div>
+     <div class="field"><label>预计时长（分钟）</label><input id="newTaskEstimate" type="number" min="0" placeholder="例如 45" /></div>
+     <div class="field"><label>Deadline（可选）</label><input id="newTaskDeadline" type="date" /></div>
+     <div class="field"><label>Collection</label><select id="newTaskCollection"><option>未分类</option><option>工作 / 产品研发</option><option>学习 / AIGC</option><option>生活 / 健康</option></select></div>
+    </div>
+    <div class="field"><label>子任务（每行一项，可选）</label><textarea id="newTaskSubtasks" placeholder="拆分一个较大的行为&#10;例如：先整理现有页面"></textarea></div>
+    <div class="help">保存后默认进入未安排任务池；只有主动选择时间时才创建 Plan。</div>
+   </div>
+   <div id="habitFields" class="hidden">
+    <div class="form-grid">
+     <div class="field"><label>重复规则 *</label><select id="newHabitRepeat"><option value="每天">每天</option><option value="每周一三五">每周一、三、五</option><option value="每周工作日">每周工作日</option><option value="每周末">每周末</option></select></div>
+     <div class="field"><label>开始日期</label><input id="newHabitStart" type="date" /></div>
+     <div class="field"><label>目标量词（数值）</label><input id="newHabitQuantity" type="number" min="0" placeholder="例如 30" /></div>
+     <div class="field"><label>量词单位</label><input id="newHabitUnit" placeholder="分钟 / 页 / 公里..." /></div>
+    </div>
+    <div class="field"><label>习惯说明</label><textarea id="newHabitDesc" placeholder="记录执行标准或提醒事项"></textarea></div>
+    <div class="help">习惯保存为重复规则；每日执行记录属于 HabitOccurrence。此处不设置“执行方式”。</div>
+   </div>
+  </div>
+  <div class="modal-foot"><button class="btn" data-close="executionModal">取消</button><button class="btn primary" id="saveExecution">保存执行事项</button></div>
+ </div>
+</div>
+
+<div class="modal-backdrop" id="candidateModal">
+ <div class="modal">
+  <div class="modal-head"><b>快速捕捉候选事项</b><button class="btn ghost small" data-close="candidateModal">✕</button></div>
+  <div class="modal-body">
+   <div class="field"><label>标题 / 内容 *</label><input id="newCandidateTitle" placeholder="先记下来，稍后再决定如何处理" /></div>
+   <div class="form-grid">
+    <div class="field"><label>主要分类</label><select id="newCandidateCategory"><option value="Memo">备忘（Memo）</option><option value="Resource">资料（Resource）</option><option value="Idea">想法（Idea）</option><option value="Wish">愿望（Wish）</option><option value="Task Candidate">待办种子（Task Candidate）</option><option value="Issue">问题（Issue）</option><option value="Decision">待决策（Decision）</option><option value="Commitment">承诺（Commitment）</option><option value="Event">事件（Event）</option><option value="Waiting">等待（Waiting）</option></select></div>
+    <div class="field"><label>标签</label><input id="newCandidateTags" placeholder="多个标签用逗号分隔" /></div>
+   </div>
+   <div class="field"><label>上下文备注</label><textarea id="newCandidateNote" placeholder="为什么收藏、关键内容、后续需要确认什么"></textarea></div>
+   <div class="field"><label>网页链接 / 文件路径（可选）</label><input id="newCandidateUri" placeholder="https://... 或本地文件路径" /></div>
+   <div class="field"><label>跟进时间（可选）</label><input id="newCandidateFollowup" type="date" /></div>
+   <div class="help">只保存引用信息，不自动读取、复制、上传或扫描源文件。</div>
+  </div>
+  <div class="modal-foot"><button class="btn" data-close="candidateModal">取消</button><button class="btn primary" id="saveCandidate">保存到候选事项</button></div>
+ </div>
+</div>
+<div class="modal-backdrop" id="convertModal">
+ <div class="modal">
+  <div class="modal-head"><b>转换候选事项</b><button class="btn ghost small" data-close="convertModal">✕</button></div>
+  <div class="modal-body">
+   <div class="note" id="convertSource"></div>
+   <div class="field"><label>转换目标</label><select id="convertType"><option value="task">普通任务（Task）</option><option value="goal">目标（Goal）</option><option value="direction">发展方向（Direction）</option><option value="event">日历事件（CalendarEvent）</option></select></div>
+   <div class="field"><label>新对象名称</label><input id="convertTitle" /></div>
+   <div class="help">确认后保留原 Candidate，并建立来源关系。仅“普通任务”在本轮交互原型中演示完整创建过程。</div>
+  </div>
+  <div class="modal-foot"><button class="btn" data-close="convertModal">取消</button><button class="btn primary" id="confirmConvert">确认转换</button></div>
+ </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const categories=[
+ ['Memo','备忘','blue'],['Resource','资料','green'],['Idea','想法','purple'],['Wish','愿望','coral'],
+ ['Task Candidate','待办种子','amber'],['Issue','问题','red'],['Decision','待决策','purple'],
+ ['Commitment','承诺','coral'],['Event','事件','blue'],['Waiting','等待','amber']
+];
+let tasks=[
+ {id:'t1',kind:'task',title:'整理 RINGS 执行库页面',desc:'完成任务库与习惯合并后的页面结构与交互评审。',status:'in_progress',priority:'高',estimate:60,deadline:'2026-11-20',collection:'工作 / 产品研发',subtasks:['确定主视图与筛选','整理习惯字段','完成页面原型'],done:1,tags:['RINGS','产品设计'],updated:5},
+ {id:'t2',kind:'task',title:'测试 Qwen Image 2.1 Turbo 工作流',desc:'检查显存占用、人物身份保持和换装效果。',status:'unscheduled',priority:'高',estimate:90,deadline:'2026-11-22',collection:'学习 / AIGC',subtasks:['下载模型','导入工作流'],done:0,tags:['ComfyUI'],updated:4},
+ {id:'t3',kind:'task',title:'整理项目目录规范',desc:'核对工具项目的入口、数据目录和运行时目录。',status:'planned',priority:'普通',estimate:45,deadline:'2026-11-25',collection:'工作 / 产品研发',subtasks:[],done:0,tags:['工程规范'],updated:3},
+ {id:'t4',kind:'task',title:'更新简历编辑器项目经验模块',desc:'完善项目经验字段与排序能力。',status:'waiting',priority:'普通',estimate:40,deadline:'2026-11-28',collection:'工作 / 产品研发',subtasks:['确认字段','调整编辑器'],done:0,tags:['简历'],updated:2},
+ {id:'t5',kind:'task',title:'阅读一篇 AI Agent 架构文章',desc:'记录值得复用的架构设计。',status:'unscheduled',priority:'低',estimate:30,deadline:'',collection:'学习 / AIGC',subtasks:[],done:0,tags:['阅读'],updated:1},
+ {id:'t6',kind:'task',title:'完成周复盘',desc:'回顾本周的执行情况和未解决问题。',status:'completed',priority:'普通',estimate:30,deadline:'2026-11-17',collection:'生活 / 健康',subtasks:[],done:0,tags:['复盘'],updated:0}
+];
+let habits=[
+ {id:'h1',kind:'habit',title:'英语听力练习',desc:'每天进行一段英语听力训练。',repeat:'每天',quantity:'30 分钟',today:'待执行',status:'active',tags:['学习'],updated:5,history:'昨天完成 30 分钟'},
+ {id:'h2',kind:'habit',title:'阅读技术资料',desc:'持续积累技术知识。',repeat:'每周一、三、五',quantity:'20 页',today:'已完成',status:'active',tags:['学习','阅读'],updated:4,history:'本周已完成 2 次'},
+ {id:'h3',kind:'habit',title:'力量训练',desc:'保持规律训练。',repeat:'每周工作日',quantity:'40 分钟',today:'待执行',status:'active',tags:['健康'],updated:3,history:'上次完成：周一'},
+ {id:'h4',kind:'habit',title:'每日整理工作台',desc:'整理文件、记录下一步。',repeat:'每天',quantity:'10 分钟',today:'已完成',status:'active',tags:['工作'],updated:2,history:'连续执行记录暂不统计'},
+ {id:'h5',kind:'habit',title:'写作练习',desc:'练习表达和结构化输出。',repeat:'每周末',quantity:'500 字',today:'未安排',status:'paused',tags:['创作'],updated:1,history:'已暂停'},
+ {id:'h6',kind:'habit',title:'散步',desc:'日常轻运动。',repeat:'每天',quantity:'2 公里',today:'待执行',status:'active',tags:['健康'],updated:0,history:'昨天完成 2 公里'}
+];
+let candidates=[
+ {id:'c1',title:'研究 ComfyUI 人物换装工作流',category:'Resource',status:'reviewing',desc:'收集了几个 Qwen Image 2.1 的工作流，后续比较身份一致性和显存要求。',tags:['ComfyUI','AIGC'],uri:'https://github.com/comfyanonymous/ComfyUI',followup:'2026-11-20',updated:9,notes:['先对比 Turbo 与标准版的工作流。','重点观察脸部身份与服装细节保持。']},
+ {id:'c2',title:'把 RINGS 页面原型拆成可复用组件',category:'Idea',status:'incubating',desc:'考虑将任务卡片、详情侧栏、筛选栏抽成统一组件。',tags:['RINGS','前端'],uri:'',followup:'',updated:8,notes:['先完成执行库与候选事项两页，再抽象组件。']},
+ {id:'c3',title:'预约本周末的体检',category:'Task Candidate',status:'new',desc:'还未确认医院和具体时间。',tags:['生活'],uri:'',followup:'2026-11-21',updated:7,notes:[]},
+ {id:'c4',title:'RINGS 首页是否加入年度路线图',category:'Decision',status:'retained',desc:'需要评估年度视图的实际使用价值与复杂度。',tags:['产品设计'],uri:'',followup:'',updated:6,notes:['先完成日 / 周 / 月基础调度，再决定年度路线图增强。']},
+ {id:'c5',title:'收集优秀的桌面端 UI 设计案例',category:'Resource',status:'new',desc:'保存几个信息密度较高、层级清晰的工作台案例。',tags:['UI','设计'],uri:'https://www.behance.net/',followup:'2026-11-24',updated:5,notes:[]},
+ {id:'c6',title:'ComfyUI 模型下载速度不稳定',category:'Issue',status:'reviewing',desc:'需要评估国内可用的模型镜像和下载工具。',tags:['ComfyUI'],uri:'',followup:'2026-11-19',updated:4,notes:['检查模型来源和文件校验方式。']},
+ {id:'c7',title:'整理个人工作台的长期目标',category:'Wish',status:'incubating',desc:'希望把工具、资料、项目和执行计划整合起来。',tags:['个人系统'],uri:'',followup:'',updated:3,notes:[]},
+ {id:'c8',title:'等待 GitHub 仓库权限确认',category:'Waiting',status:'new',desc:'等待协作者确认仓库设置。',tags:['GitHub'],uri:'',followup:'2026-11-19',updated:2,notes:[]},
+ {id:'c9',title:'每周整理一次项目状态',category:'Commitment',status:'converted',desc:'已形成固定执行承诺，准备转换为习惯规则。',tags:['工作'],uri:'',followup:'',updated:1,notes:['后续考虑转为 Habit。']},
+ {id:'c10',title:'记录一次产品设计灵感',category:'Memo',status:'archived',desc:'卡片式列表与轻量详情面板的组合。',tags:['产品设计'],uri:'',followup:'',updated:0,notes:[]}
+];
+let execKind='all',execStatus='all',execQuick='all',execSearch='',selectedExec='t1',selectedCandidate='c1',candidateStatus='all',candidateCategory='all',candidateSearch='',newType='task',convertCandidate=null;
+function toast(message){$('toast').textContent=message;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),1900)}
+function showPage(id){
+ document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));
+ document.querySelectorAll('.nav-btn[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===id));
+ const names={execution:['执行层 · Execution','执行库'],candidate:['捕捉层 · Capture','候选事项'],home:['可视化调度','调度工作台'],planning:['规划层 · Planning','规划'],review:['管理层 · Review','复盘与统计'],settings:['RINGS','设置']};
+ $('crumb').textContent=names[id][0];$('topTitle').textContent=names[id][1];
+}
+document.querySelectorAll('.nav-btn[data-page]').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
+function categoryMeta(key){return categories.find(x=>x[0]===key)||['Memo','备忘','blue']}
+function candidateStatusLabel(s){return ({new:'新收集',reviewing:'待回顾',retained:'已保留',incubating:'孵化中',converted:'已转换',archived:'已归档',dismissed:'已取消'})[s]||s}
+function taskStatusLabel(s){return ({unscheduled:'未安排',planned:'已安排',in_progress:'进行中',waiting:'等待 / 阻塞',completed:'已完成',cancelled:'已取消',archived:'已归档'})[s]||s}
+function taskStatusTone(s){return s==='completed'?'green':s==='in_progress'?'blue':s==='waiting'?'amber':s==='unscheduled'?'coral':'pill'}
+function renderExecution(){
+ const all=[...tasks,...habits];
+ let filtered=all.filter(x=>{
+  if(execKind!=='all'&&x.kind!==execKind)return false;
+  if(x.kind==='task'&&execStatus!=='all'&&x.status!==execStatus)return false;
+  if(x.kind==='habit'&&execQuick==='today'&&x.today==='已完成')return false;
+  if(x.kind==='habit'&&execKind==='habit'&&document.querySelector('[data-habit-filter].active')?.dataset.habitFilter==='paused'&&x.status!=='paused')return false;
+  if(execQuick==='unscheduled'&&!(x.kind==='task'&&x.status==='unscheduled'))return false;
+  if(execQuick==='high'&&!(x.kind==='task'&&x.priority==='高'))return false;
+  if(execQuick==='today'&&x.kind==='task'&&x.status==='completed')return false;
+  if(execSearch&&!((x.title+' '+(x.desc||'')+' '+(x.tags||[]).join(' ')).toLowerCase().includes(execSearch)))return false;
+  return true;
+ });
+ filtered.sort((a,b)=>(b.updated||0)-(a.updated||0));
+ $('execListCount').textContent=filtered.length+' 项';
+ $('execNavCount').textContent=tasks.length+habits.length;
+ $('allCount').textContent=tasks.length+habits.length;$('taskCount').textContent=tasks.length;$('habitCount').textContent=habits.length;
+ $('taskStatusFilters').classList.toggle('hidden',execKind==='habit');
+ $('habitStatusFilters').classList.toggle('hidden',execKind==='task');
+ $('executionItems').innerHTML=filtered.length?filtered.map(x=>{
+  const selected=x.id===selectedExec?' selected':'';
+  if(x.kind==='task'){
+   const done=x.subtasks?.length?x.done+'/'+x.subtasks.length+' 子任务':'普通任务';
+   return '<article class="item'+selected+'" data-exec-id="'+x.id+'"><div class="item-top"><span class="pill blue">普通任务</span><span class="pill '+(x.status==='completed'?'green':x.status==='waiting'?'amber':x.status==='in_progress'?'blue':'coral')+'">'+taskStatusLabel(x.status)+'</span><span class="item-title">'+x.title+'</span><span class="priority">'+(x.priority==='高'?'↑ 高优先级':'')+'</span></div><div class="item-desc">'+(x.desc||'暂无说明')+'</div><div class="item-bottom"><span class="meta">◷ '+(x.estimate?x.estimate+' 分钟':'未设时长')+'</span><span class="meta">⌁ '+(x.deadline?'截止 '+x.deadline:'无 Deadline')+'</span><span class="meta">☷ '+done+'</span><span class="pill">'+(x.collection||'未分类')+'</span></div></article>';
+  }
+  return '<article class="item'+selected+'" data-exec-id="'+x.id+'"><div class="item-top"><span class="pill purple">习惯</span><span class="pill '+(x.status==='paused'?'amber':x.today==='已完成'?'green':'coral')+'">'+(x.status==='paused'?'暂停中':x.today)+'</span><span class="item-title">'+x.title+'</span></div><div class="item-desc">'+x.desc+'</div><div class="item-bottom"><span class="meta">↻ '+x.repeat+'</span><span class="meta">◉ 量词 '+(x.quantity||'未设定')+'</span><span class="meta">今日：'+x.today+'</span></div></article>';
+ }).join(''):'<div class="empty"><b>没有符合条件的执行事项</b>尝试调整筛选条件，或新建一个执行事项。</div>';
+ document.querySelectorAll('[data-exec-id]').forEach(el=>el.addEventListener('click',()=>{selectedExec=el.dataset.execId;renderExecution();renderExecutionDetail()}));
+ renderExecutionDetail();updateMetrics();
+}
+function updateMetrics(){
+ $('metricUnscheduled').textContent=tasks.filter(x=>x.status==='unscheduled').length;
+ $('metricInProgress').textContent=tasks.filter(x=>x.status==='in_progress').length;
+ $('metricHabits').textContent=habits.filter(x=>x.status==='active'&&x.today!=='已完成').length;
+ $('metricDone').textContent=tasks.filter(x=>x.status==='completed').length+habits.filter(x=>x.today==='已完成').length;
+}
+function renderExecutionDetail(){
+ const x=tasks.concat(habits).find(v=>v.id===selectedExec);
+ if(!x){$('executionDetail').innerHTML='<div class="empty">选择一项执行事项查看详情</div>';return}
+ if(x.kind==='task'){
+  $('executionDetail').innerHTML='<div class="detail-head"><b>任务详情</b><span class="pill blue">Task</span></div><div class="detail-body"><div class="detail-kicker">EXECUTION ITEM</div><div class="detail-title">'+x.title+'</div><p class="detail-desc">'+(x.desc||'暂无说明')+'</p><div class="detail-actions"><button class="btn primary small" onclick="toggleTaskDone(\\''+x.id+'\\')">'+(x.status==='completed'?'重新打开':'标记完成')+'</button><button class="btn small" onclick="editTaskStatus(\\''+x.id+'\\')">更改状态</button><button class="btn small" onclick="toast(\\'打开编辑表单（原型示意）\\')">编辑</button></div><div class="detail-section"><h4>任务属性</h4><div class="detail-row"><span>状态</span><b>'+taskStatusLabel(x.status)+'</b></div><div class="detail-row"><span>优先级</span><b>'+x.priority+'</b></div><div class="detail-row"><span>预计时长</span><b>'+(x.estimate?x.estimate+' 分钟':'未设置')+'</b></div><div class="detail-row"><span>Deadline</span><b>'+(x.deadline||'未设置')+'</b></div><div class="detail-row"><span>Collection</span><b>'+(x.collection||'未分类')+'</b></div></div><div class="detail-section"><h4>子任务</h4>'+(x.subtasks?.length?x.subtasks.map((s,i)=>'<div class="detail-row"><span>'+(i<x.done?'☑':'□')+' '+s+'</span><b>'+(i<x.done?'完成':'待处理')+'</b></div>').join(''):'<div class="meta">尚未拆分子任务</div>')+'<div class="mini-progress"><i style="width:'+(x.subtasks?.length?Math.round(x.done/x.subtasks.length*100):0)+'%"></i></div></div><div class="detail-section"><h4>计划与实际</h4><div class="detail-row"><span>Plan</span><b>'+(x.status==='planned'?'已有安排':'未安排')+'</b></div><div class="detail-row"><span>WorkSession</span><b>查看实际投入记录 →</b></div></div><div class="detail-section"><h4>上下文与关联</h4><div class="note">Thought Stream · 下一步、问题与决策记录</div><div class="note">Work Context · Repo、文件夹、网页与 AI 会话</div></div></div>';
+ }else{
+  $('executionDetail').innerHTML='<div class="detail-head"><b>习惯详情</b><span class="pill purple">Habit</span></div><div class="detail-body"><div class="detail-kicker">REPEATING RULE</div><div class="detail-title">'+x.title+'</div><p class="detail-desc">'+x.desc+'</p><div class="detail-actions"><button class="btn primary small" onclick="checkHabit(\\''+x.id+'\\')">'+(x.today==='已完成'?'撤销今日记录':'记录今日执行')+'</button><button class="btn small" onclick="toggleHabit(\\''+x.id+'\\')">'+(x.status==='paused'?'恢复习惯':'暂停习惯')+'</button></div><div class="detail-section"><h4>习惯规则</h4><div class="detail-row"><span>重复规则</span><b>'+x.repeat+'</b></div><div class="detail-row"><span>目标量词</span><b>'+(x.quantity||'未设置')+'</b></div><div class="detail-row"><span>规则状态</span><b>'+(x.status==='paused'?'暂停中':'启用中')+'</b></div></div><div class="detail-section"><h4>今日执行实例</h4><div class="note">HabitOccurrence · '+x.today+'<br>本次记录作用于单次执行实例，不修改习惯规则。</div></div><div class="detail-section"><h4>执行历史</h4><div class="detail-row"><span>最近记录</span><b>'+x.history+'</b></div><div class="meta">连续记录和统计口径待后续产品决策。</div></div><div class="detail-section"><h4>关联与上下文</h4><div class="note">Collection / Tag / Goal 关联</div></div></div>';
+ }
+}
+function toggleTaskDone(id){const x=tasks.find(t=>t.id===id);if(!x)return;x.status=x.status==='completed'?'unscheduled':'completed';renderExecution();toast('任务状态已更新')}
+function editTaskStatus(id){const x=tasks.find(t=>t.id===id);if(!x)return;x.status=x.status==='waiting'?'in_progress':'waiting';renderExecution();toast('任务状态已更新')}
+function checkHabit(id){const x=habits.find(h=>h.id===id);if(!x)return;x.today=x.today==='已完成'?'待执行':'已完成';x.history=x.today==='已完成'?'今天已完成 '+(x.quantity||'本次目标'):'已撤销今日记录';renderExecution();toast(x.today==='已完成'?'已记录本次 HabitOccurrence':'已撤销今日记录')}
+function toggleHabit(id){const x=habits.find(h=>h.id===id);if(!x)return;x.status=x.status==='paused'?'active':'paused';renderExecution();toast(x.status==='paused'?'习惯已暂停':'习惯已恢复')}
+function setExecKind(kind){
+ execKind=kind;execStatus='all';execQuick='all';
+ document.querySelectorAll('[data-kind]').forEach(b=>b.classList.toggle('active',b.dataset.kind===kind));
+ document.querySelectorAll('#execViewSegment button').forEach(b=>b.classList.toggle('active',b.dataset.view===kind));
+ document.querySelectorAll('[data-status]').forEach(b=>b.classList.toggle('active',b.dataset.status==='all'));
+ document.querySelectorAll('[data-quick]').forEach(b=>b.classList.toggle('active',b.dataset.quick==='all'));
+ renderExecution();
+}
+document.querySelectorAll('[data-kind]').forEach(b=>b.addEventListener('click',()=>setExecKind(b.dataset.kind)));
+document.querySelectorAll('#execViewSegment button').forEach(b=>b.addEventListener('click',()=>setExecKind(b.dataset.view)));
+document.querySelectorAll('[data-status]').forEach(b=>b.addEventListener('click',()=>{execStatus=b.dataset.status;document.querySelectorAll('[data-status]').forEach(v=>v.classList.toggle('active',v===b));renderExecution()}));
+document.querySelectorAll('[data-quick]').forEach(b=>b.addEventListener('click',()=>{execQuick=b.dataset.quick;document.querySelectorAll('[data-quick]').forEach(v=>v.classList.toggle('active',v===b));renderExecution()}));
+document.querySelectorAll('[data-habit-filter]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-habit-filter]').forEach(v=>v.classList.toggle('active',v===b));execKind='habit';document.querySelectorAll('[data-kind]').forEach(v=>v.classList.toggle('active',v.dataset.kind==='habit'));renderExecution()}));
+$('execSearch').addEventListener('input',e=>{execSearch=e.target.value.toLowerCase().trim();renderExecution()});
+$('clearExecFilters').addEventListener('click',()=>{execSearch='';$('execSearch').value='';setExecKind('all')});
+function openExecutionModal(type){
+ newType=type||'task';$('newExecTitle').value='';$('newTaskDesc').value='';$('newTaskPriority').value='普通';$('newTaskEstimate').value='';$('newTaskDeadline').value='';$('newTaskSubtasks').value='';$('newHabitQuantity').value='';$('newHabitUnit').value='';$('newHabitDesc').value='';
+ document.querySelectorAll('[data-newtype]').forEach(b=>b.classList.toggle('active',b.dataset.newtype===newType));
+ $('taskFields').classList.toggle('hidden',newType!=='task');$('habitFields').classList.toggle('hidden',newType!=='habit');
+ $('executionModal').classList.add('show');$('newExecTitle').focus();
+}
+document.querySelectorAll('[data-newtype]').forEach(b=>b.addEventListener('click',()=>{newType=b.dataset.newtype;document.querySelectorAll('[data-newtype]').forEach(v=>v.classList.toggle('active',v===b));$('taskFields').classList.toggle('hidden',newType!=='task');$('habitFields').classList.toggle('hidden',newType!=='habit')}));
+$('createExecution').onclick=$('topCreate').onclick=()=>openExecutionModal('task');
+$('saveExecution').onclick=()=>{
+ const title=$('newExecTitle').value.trim();if(!title){$('newExecTitle').focus();return}
+ if(newType==='task'){
+  const subtasks=$('newTaskSubtasks').value.split('\n').map(x=>x.trim()).filter(Boolean);
+  const id='t'+Date.now();tasks.unshift({id,kind:'task',title,desc:$('newTaskDesc').value.trim(),status:'unscheduled',priority:$('newTaskPriority').value,estimate:Number($('newTaskEstimate').value)||0,deadline:$('newTaskDeadline').value,collection:$('newTaskCollection').value,subtasks,done:0,tags:[],updated:Date.now()});
+  selectedExec=id;setExecKind('task');toast('已创建普通任务，进入未安排任务池');
+ }else{
+  const quantity=$('newHabitQuantity').value&&$('newHabitUnit').value?$('newHabitQuantity').value+' '+$('newHabitUnit').value:$('newHabitUnit').value||'未设置';
+  const id='h'+Date.now();habits.unshift({id,kind:'habit',title,desc:$('newHabitDesc').value.trim(),repeat:$('newHabitRepeat').value,quantity,today:'待执行',status:'active',tags:[],history:'尚无执行记录',updated:Date.now()});
+  selectedExec=id;setExecKind('habit');toast('已创建习惯规则');
+ }
+ $('executionModal').classList.remove('show');renderExecution();
+};
+function renderCandidates(){
+ let filtered=candidates.filter(c=>{
+  if(candidateStatus==='review'&&!['new','reviewing'].includes(c.status))return false;
+  if(candidateStatus!=='all'&&candidateStatus!=='review'&&c.status!==candidateStatus)return false;
+  if(candidateCategory!=='all'&&c.category!==candidateCategory)return false;
+  if(candidateSearch&&!((c.title+' '+c.desc+' '+(c.notes||[]).join(' ')+' '+(c.tags||[]).join(' ')).toLowerCase().includes(candidateSearch)))return false;
+  return true;
+ });
+ const sort=$('candidateSort').value;
+ filtered.sort((a,b)=>sort==='title'?a.title.localeCompare(b.title):sort==='created'?b.id.localeCompare(a.id):(b.updated||0)-(a.updated||0));
+ $('candidateListCount').textContent=filtered.length+' 条';
+ $('candidateNavCount').textContent=candidates.length;
+ $('candidateTotal').textContent=candidates.length;
+ $('candidateReview').textContent=candidates.filter(c=>['new','reviewing'].includes(c.status)).length;
+ $('candidateIncubating').textContent=candidates.filter(c=>c.status==='incubating').length;
+ $('candidateResources').textContent=candidates.filter(c=>c.category==='Resource').length;
+ $('reviewCount').textContent=candidates.filter(c=>['new','reviewing'].includes(c.status)).length;
+ $('candidateItems').innerHTML=filtered.length?filtered.map(c=>{
+  const cat=categoryMeta(c.category),selected=c.id===selectedCandidate?' selected':'';
+  return '<article class="item'+selected+'" data-candidate-id="'+c.id+'"><div class="item-top"><span class="pill '+cat[2]+'">'+cat[1]+' ('+cat[0]+')</span><span class="pill '+(c.status==='incubating'?'purple':c.status==='converted'?'green':c.status==='archived'?'':'amber')+'">'+candidateStatusLabel(c.status)+'</span><span class="item-title">'+c.title+'</span></div><div class="item-desc">'+(c.desc||'暂无摘要')+'</div><div class="item-bottom">'+(c.tags||[]).map(t=>'<span class="pill">'+t+'</span>').join('')+(c.uri?'<span class="meta">↗ 有外部引用</span>':'')+(c.followup?'<span class="meta">◷ 跟进 '+c.followup+'</span>':'')+'</div></article>';
+ }).join(''):'<div class="empty"><b>当前没有候选事项</b>可以快速捕捉一条信息，之后再决定如何处理。</div>';
+ document.querySelectorAll('[data-candidate-id]').forEach(el=>el.addEventListener('click',()=>{selectedCandidate=el.dataset.candidateId;renderCandidates();renderCandidateDetail()}));
+ renderCandidateDetail();
+}
+function renderCandidateDetail(){
+ const c=candidates.find(v=>v.id===selectedCandidate);
+ if(!c){$('candidateDetail').innerHTML='<div class="empty">选择一条候选事项查看详情</div>';return}
+ const cat=categoryMeta(c.category);
+ $('candidateDetail').innerHTML='<div class="detail-head"><b>候选事项详情</b><span class="pill '+cat[2]+'">'+cat[1]+'</span></div><div class="detail-body"><div class="detail-kicker">CANDIDATE · '+c.id.toUpperCase()+'</div><div class="detail-title">'+c.title+'</div><p class="detail-desc">'+(c.desc||'暂无内容摘要')+'</p><div class="detail-actions"><button class="btn primary small" onclick="openConvert(\\''+c.id+'\\')">转为正式对象</button><button class="btn small" onclick="setCandidateStatus(\\''+c.id+'\\',\\'incubating\\')">孵化</button><button class="btn small" onclick="setCandidateStatus(\\''+c.id+'\\',\\'archived\\')">归档</button></div><div class="detail-section"><h4>基本信息</h4><div class="detail-row"><span>主要分类</span><b>'+cat[1]+' ('+cat[0]+')</b></div><div class="detail-row"><span>生命周期</span><b>'+candidateStatusLabel(c.status)+'</b></div><div class="detail-row"><span>跟进时间</span><b>'+(c.followup||'未设置')+'</b></div><div class="detail-row"><span>来源</span><b>'+(c.uri?'外部引用':'手动捕捉')+'</b></div></div><div class="detail-section"><h4>备注记录</h4>'+(c.notes?.length?c.notes.map(n=>'<div class="note">'+n+'</div>').join(''):'<div class="meta">暂无备注记录</div>')+'<button class="btn small" onclick="addCandidateNote(\\''+c.id+'\\')">＋ 添加备注</button></div><div class="detail-section"><h4>补充资料</h4>'+(c.uri?'<div class="note">↗ External Reference<br>'+c.uri+'<br><span class="meta">仅保存引用，不代表已上传源文件</span></div>':'<div class="meta">暂无补充资料</div>')+'</div><div class="detail-section"><h4>标签</h4><div class="tag-row">'+(c.tags||[]).map(t=>'<span class="pill">'+t+'</span>').join('')+'</div></div><div class="detail-section"><h4>生命周期操作</h4><div class="detail-row"><span>保留</span><b><button class="btn small" onclick="setCandidateStatus(\\''+c.id+'\\',\\'retained\\')">标记保留</button></b></div><div class="detail-row"><span>取消</span><b><button class="btn small danger" onclick="setCandidateStatus(\\''+c.id+'\\',\\'dismissed\\')">不再处理</button></b></div></div></div>';
+}
+function setCandidateStatus(id,status){const c=candidates.find(v=>v.id===id);if(!c)return;c.status=status;c.updated=Date.now();renderCandidates();toast('候选事项状态已更新')}
+function addCandidateNote(id){const c=candidates.find(v=>v.id===id);if(!c)return;const n=prompt('添加一条备注');if(!n||!n.trim())return;c.notes.push(n.trim());c.updated=Date.now();renderCandidates();toast('备注已添加')}
+function openConvert(id){const c=candidates.find(v=>v.id===id);if(!c)return;convertCandidate=id;$('convertSource').textContent='来源 Candidate：'+c.title+' · '+categoryMeta(c.category)[1];$('convertTitle').value=c.title;$('convertModal').classList.add('show')}
+$('confirmConvert').onclick=()=>{
+ const c=candidates.find(v=>v.id===convertCandidate);if(!c)return;
+ const type=$('convertType').value,title=$('convertTitle').value.trim()||c.title;
+ if(type==='task'){
+  const id='t'+Date.now();tasks.unshift({id,kind:'task',title,desc:c.desc,status:'unscheduled',priority:'普通',estimate:0,deadline:'',collection:'未分类',subtasks:[],done:0,tags:c.tags||[],updated:Date.now(),sourceCandidateId:c.id});
+  selectedExec=id;c.status='converted';c.updated=Date.now();$('convertModal').classList.remove('show');showPage('execution');setExecKind('task');toast('已转换为 Task，来源关系已保留');
+ }else{
+  c.status='converted';c.updated=Date.now();$('convertModal').classList.remove('show');renderCandidates();toast('已标记转换；该目标类型的完整表单将在后续原型补齐');
+ }
+ renderCandidates();
+};
+$('newCandidate').onclick=$('quickCaptureTop').onclick=()=>{$('newCandidateTitle').value='';$('newCandidateNote').value='';$('newCandidateUri').value='';$('newCandidateTags').value='';$('newCandidateFollowup').value='';$('candidateModal').classList.add('show');$('newCandidateTitle').focus()};
+$('saveCandidate').onclick=()=>{
+ const title=$('newCandidateTitle').value.trim();if(!title){$('newCandidateTitle').focus();return}
+ const c={id:'c'+Date.now(),title,category:$('newCandidateCategory').value,status:'new',desc:$('newCandidateNote').value.trim(),tags:$('newCandidateTags').value.split(',').map(x=>x.trim()).filter(Boolean),uri:$('newCandidateUri').value.trim(),followup:$('newCandidateFollowup').value,updated:Date.now(),notes:[]};
+ candidates.unshift(c);selectedCandidate=c.id;$('candidateModal').classList.remove('show');showPage('candidate');renderCandidates();toast('已保存到候选事项池');
+};
+document.querySelectorAll('[data-cstatus]').forEach(b=>b.addEventListener('click',()=>{candidateStatus=b.dataset.cstatus;document.querySelectorAll('[data-cstatus]').forEach(v=>v.classList.toggle('active',v===b));renderCandidates()}));
+document.querySelectorAll('[data-category]').forEach(b=>b.addEventListener('click',()=>{candidateCategory=b.dataset.category;document.querySelectorAll('[data-category]').forEach(v=>v.classList.toggle('active',v===b));renderCandidates()}));
+$('candidateSearch').addEventListener('input',e=>{candidateSearch=e.target.value.toLowerCase().trim();renderCandidates()});
+$('candidateSort').addEventListener('change',renderCandidates);
+$('clearCandidateFilters').onclick=()=>{candidateStatus='all';candidateCategory='all';candidateSearch='';$('candidateSearch').value='';document.querySelectorAll('[data-cstatus]').forEach(v=>v.classList.toggle('active',v.dataset.cstatus==='all'));document.querySelectorAll('[data-category]').forEach(v=>v.classList.toggle('active',v.dataset.category==='all'));renderCandidates()};
+$('reviewCandidates').onclick=()=>{candidateStatus='review';document.querySelectorAll('[data-cstatus]').forEach(v=>v.classList.toggle('active',v.dataset.cstatus==='review'));renderCandidates()};
+document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>$(b.dataset.close).classList.remove('show')));
+document.querySelectorAll('.modal-backdrop').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('show')}));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal-backdrop.show').forEach(m=>m.classList.remove('show'));if(e.ctrlKey&&e.shiftKey&&e.key.toLowerCase()==='i')$('quickCaptureTop').click()});
+renderExecution();renderCandidates();showPage('execution');
+</script>
+</body>
+</html>
