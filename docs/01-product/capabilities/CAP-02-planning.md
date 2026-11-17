@@ -102,3 +102,10 @@ Task 进入执行层
 - [ ] 不强制所有 Task 归属 Goal。
 - [ ] Stage 完成不自动等于 Goal 完成。
 - [ ] Goal 进度口径可解释，不简单等于任务完成率。
+
+
+## 9. Goal 创建时的可选 Stage
+
+创建 Goal 时允许用户选择是否同时建立子阶段（Stage）。Stage 可以逐条添加、编辑、删除和排序；不建立 Stage 不影响 Goal 保存。Stage 是 Goal 的规划结构，不因创建而自动生成 Task。
+
+原型状态：prototype_only；Stage 与 Goal 的持久化关系仍需在正式数据层实现。
