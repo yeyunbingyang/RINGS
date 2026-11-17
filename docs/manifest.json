@@ -1,0 +1,16 @@
+{
+  "package": "RINGS Project Documentation",
+  "documentation_version": "1.0.0",
+  "created_on": "2026-11-17",
+  "product_baseline": "RINGS PRD v2.2.2",
+  "prototype_baseline": "prototype.zip / TDO V2.0 historical prototype",
+  "source_note": "Prototype files are historical design references, not proof of production implementation.",
+  "reference_files": [
+    "references/TDO-V2.0-restored-historical-prototype.html",
+    "references/source-RINGS-PRD-v2.2.2.md",
+    "references/legacy/TDO-PRD-v1.0-historical.md",
+    "references/legacy/TDO-V1.1-Statistics-Review-historical.html",
+    "references/legacy/TDO-V1.3-Ideas-Panel-historical.html"
+  ],
+  "repository_note": "The original prototype.zip was reviewed during documentation preparation. The repository contains the readable source PRD and historical HTML references; the original binary archive is intentionally not duplicated here."
+}
