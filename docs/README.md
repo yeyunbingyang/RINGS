@@ -103,3 +103,14 @@
 - 新增执行库和候选事项页面规格及 HTML 原型 v0.1。
 - 原型文件：prototypes/execution-candidate-v0.1/index.html。
 - 当前只完成原型首轮，不代表正式应用实现。
+
+
+## 11. 执行库与候选事项规格
+
+- 执行库页面规格：docs/02-design/execution-library-v0.1-spec.md
+- 候选事项页面规格：docs/02-design/candidate-pool-v0.1-spec.md
+- 执行库 + 候选事项 HTML：prototypes/execution-candidate-v0.1/index.html
+- 原型运行说明：prototypes/execution-candidate-v0.1/README.md
+- 原型变更记录：prototypes/execution-candidate-v0.1/CHANGELOG.md
+
+当前两个页面为首轮交互原型，尚待浏览器验收与用户评审。
