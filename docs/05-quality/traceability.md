@@ -48,3 +48,21 @@
 - 每个 DEV 任务必须关联 CAP 和验收条件。
 - 每个 TEST 用例必须关联需求或缺陷。
 - 需求取消或变更时，更新所有下游关联。
+
+
+## 4. 原型交互证据（2026-11-18）
+
+以下是 HTML 原型的浏览器交互检查，不是正式应用自动化测试，不得将状态升级为 code_complete 或 released。
+
+| 测试编号 | 场景 | 结果 | 证据状态 |
+|---|---|---|---|
+| TEST-PROTO-04-01 | 固定首页头部、时间轴与任务池独立滚动 | 通过 | prototype_only |
+| TEST-PROTO-04-02 | 任务池顶部新增任务，新建后置顶 | 通过 | prototype_only |
+| TEST-PROTO-03-01 | 任务卡片快速编辑名称、优先级、时长、子任务和备注 | 通过 | prototype_only |
+| TEST-PROTO-01-01 | 顶部快速收藏，保存为 Resource Candidate | 通过 | prototype_only |
+| TEST-PROTO-02-01 | Goal 可选添加 Stage | 通过（v0.6 检查） | prototype_only |
+| TEST-PROTO-04-03 | Calendar Event 结束时间事后补录 | 通过（v0.6 检查） | prototype_only |
+| TEST-PROTO-UI-01 | 桌面 / 手机弹窗视口适配 | 通过 | prototype_only |
+| TEST-PROTO-UI-02 | 滚动条样式与页面无横向溢出 | 通过 | prototype_only |
+
+浏览器检查覆盖 Chromium。尚未建立正式应用的单元、集成或端到端测试套件。
