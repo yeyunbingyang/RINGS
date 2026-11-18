@@ -60,4 +60,4 @@ v0.2 增加普通任务和习惯规则编辑交互；仍是内存原型，浏览
 - 交付记录：[v0.8 release](docs/04-delivery/planning-workspace-v0.8-release.md)
 - 验收记录：[v0.8 acceptance](docs/05-quality/planning-workspace-v0.8-acceptance.md)
 
-v0.8 HTML 原型作为当前会话附件交付，状态为 prototype_only；当前仓库同步页面规格、流程、进度和验收文档，不代表正式应用已实现。
+HTML 原型已提交至 [`prototypes/planning-workspace-v0.8/index.html`](prototypes/planning-workspace-v0.8/index.html)，下载后使用 Chrome / Edge 打开即可。原型使用浏览器 localStorage 演示数据，状态为 prototype_only，不代表正式应用已实现。
