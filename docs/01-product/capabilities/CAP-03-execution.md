@@ -96,3 +96,15 @@ WorkSession 实际时间记录属于当前能力基线；倒计时 / 正计时 /
 - 未安排 Task 可以通过任务池卡片快速编辑名称、Collection、优先级、预计时长、Deadline、子任务和上下文备注。
 
 原型状态：部分交互已在 v0.7 验证；正式 Task / Habit 数据与编辑服务未实现。
+
+
+## 12. v0.3 执行库生命周期补充
+
+- 执行库是 Task 与 Habit 的统一管理入口，不合并领域实体。
+- Task 生命周期状态：ready、in_progress、waiting、blocked、completed、cancelled、archived。
+- Task 调度状态独立：unscheduled / planned；新建 Task 默认未安排。
+- Habit 是重复规则；HabitOccurrence 是某日期的一次执行实例。
+- HabitOccurrence 支持已完成、跳过、未完成、实际量词和备注；历史按日期保存，不由今日状态覆盖。
+- Habit 规则编辑不得覆盖历史记录；量词数值与单位必须同时填写或同时留空。
+- 删除 Task / Habit 采用软删除；不得因删除而静默级联清除 Plan、WorkSession 或历史记录。
+- v0.3 原型已覆盖主要交互，正式数据层与自动生成实例策略仍待实现 / 决策。

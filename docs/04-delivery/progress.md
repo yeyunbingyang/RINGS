@@ -130,3 +130,19 @@ v0.2 文件：prototypes/execution-candidate-v0.2/index.html。
 | 正式应用 / 数据库 | 未验证 | 当前仍为独立 HTML 原型；无正式后端、数据库事务或跨设备审计 |
 
 本次原型附件：`RINGS-v1.7.1-reflection-center.html`；完整包：`RINGS-v1.7.1-reflection-center.zip`。正式应用开发状态不因原型验收而升级。
+
+
+## 12. 2026-11-18 执行库与候选事项 v0.3
+
+| 工作项 | 状态 | 说明 |
+|---|---|---|
+| Task 生命周期 | 原型已完成（prototype_only） | 准备就绪、进行中、等待、阻塞、完成、取消、归档；调度状态独立 |
+| HabitOccurrence | 原型已完成（prototype_only） | 按日期记录完成、跳过、未完成、量词和备注 |
+| Candidate 管理 | 原型已完成（prototype_only） | 十种分类、生命周期、搜索、备注、批量归档和标签 |
+| Candidate 转换 | 原型已完成（prototype_only） | 显式选择 Task / Goal / Direction / CalendarEvent；保留来源关系 |
+| 统一回收站 | 原型已完成（prototype_only） | Task / Habit / Candidate 软删除、恢复和永久删除确认 |
+| Chromium 冒烟验收 | 已通过（prototype_only） | 新建 Task / Candidate、转换、习惯按日期记录、备注、软删除 / 恢复 |
+| 390px 窄屏 | 已通过（prototype_only） | 页面无横向溢出 |
+| 正式应用 / 数据库 | 未验证 | 无正式数据库、API、事务或跨设备同步 |
+
+原型规格：`docs/02-design/execution-candidate-v0.3-spec.md`。HTML 原型通过会话附件交付；当前仓库同步需求规格与进度记录，不把原型验收等同正式应用完成。

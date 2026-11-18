@@ -123,3 +123,12 @@
 - v1.7.1 交付记录：`04-delivery/reflection-center-v1.7.1-release.md`
 
 v1.7.0 重构周期复盘、数据分析、历史复盘和改进追踪；v1.7.1 增加本地业务变更日志。HTML 原型作为会话附件交付，状态为 prototype_only，不代表正式应用完成。
+
+
+## 13. 执行库与候选事项 v0.3
+
+- 交互规格：`02-design/execution-candidate-v0.3-spec.md`
+- 交付记录：`04-delivery/execution-candidate-v0.3-release.md`
+- 会话附件：`RINGS-v0.3-execution-candidate.html` 与 `RINGS-v0.3-validated-delivery.zip`
+
+v0.3 补齐 Task / Habit 管理、按日期保存 HabitOccurrence、Candidate 备注与批量操作、显式转换、统一回收站和恢复流程。原型状态为 prototype_only；真实附件上传、数据库/API 和生产环境仍未实现。
