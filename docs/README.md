@@ -114,3 +114,12 @@
 - 原型变更记录：prototypes/execution-candidate-v0.1/CHANGELOG.md
 
 当前两个页面为首轮交互原型，尚待浏览器验收与用户评审。
+
+
+## 12. 复盘中心 v1.7
+
+- PRD 补充规格：`01-product/reflection-center-v1.7.md`
+- UI / UX 规格：`02-design/reflection-center-v1.7-spec.md`
+- v1.7.1 交付记录：`04-delivery/reflection-center-v1.7.1-release.md`
+
+v1.7.0 重构周期复盘、数据分析、历史复盘和改进追踪；v1.7.1 增加本地业务变更日志。HTML 原型作为会话附件交付，状态为 prototype_only，不代表正式应用完成。
