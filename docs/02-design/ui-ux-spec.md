@@ -175,7 +175,7 @@ RINGS 品牌意象为“年轮、积累、生长”。可以探索同心环、�
 - 当前 v0.2 仅为内存原型；数据持久化与按日期的 HabitOccurrence 历史尚未实现。
 
 
-## 14. 规划工作区 v0.4
+## 14. 规划工作区 v0.8
 
 - 桌面采用 Direction 左栏、Goal 列表中栏、Goal 详情右栏。
 - Direction 可独立存在；选择方向后过滤 Goal。
@@ -186,4 +186,4 @@ RINGS 品牌意象为“年轮、积累、生长”。可以探索同心环、�
 - Goal 进度和 Task 完成率必须分开显示，不能以任务完成率冒充目标进度。
 - Goal 创建 Task 默认未安排，不在规划页面创建 Plan。
 - 窄屏下三栏纵向堆叠；弹窗标题和操作区固定，内容区内部滚动。
-- 规划工作区详细规格见 planning-workspace-v0.4-spec.md。
+- 规划工作区详细规格见 planning-workspace-v0.8-spec.md。

@@ -53,4 +53,4 @@ Review / Statistics、Collection / Relation、备份导出增强、批量调度�
 
 ## 阶段 1 页面设计增量（2026-11-18）
 
-规划工作区 v0.4 已完成首轮 HTML 原型和页面规格（prototype_only），覆盖 Direction / Goal / Stage / Task 关联。用户评审通过后，进入阶段 2 技术方案冻结；当前不把原型交互标记为正式代码完成。
+规划工作区 v0.8 已完成首轮 HTML 原型和页面规格（prototype_only），覆盖 Direction / Goal / Stage / Task 关联。用户评审通过后，进入阶段 2 技术方案冻结；当前不把原型交互标记为正式代码完成。

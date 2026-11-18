@@ -1,7 +1,7 @@
-# RINGS v0.4 规划工作区原型交付记录
+# RINGS v0.8 规划工作区原型交付记录
 
 - 日期：2026-11-18
-- 版本：v0.4
+- 版本：v0.8
 - 范围：Direction / Goal / Stage / Task 关联规划工作区
 - 状态：原型首轮完成（prototype_only）
 

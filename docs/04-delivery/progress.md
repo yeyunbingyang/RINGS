@@ -161,7 +161,7 @@ v0.2 文件：prototypes/execution-candidate-v0.2/index.html。
 v0.3.1 会话附件：`RINGS-v0.3.1-execution-context.html` 与 `RINGS-v0.3.1-delivery.zip`。文件拖放 / 剪贴板在目标桌面浏览器仍需用户环境复测。
 
 
-## 14. 2026-11-18 规划工作区 v0.4
+## 14. 2026-11-18 规划工作区 v0.8
 
 | 工作项 | 状态 | 说明 |
 |---|---|---|
@@ -176,8 +176,8 @@ v0.3.1 会话附件：`RINGS-v0.3.1-execution-context.html` 与 `RINGS-v0.3.1-de
 | 浏览器交互与窄屏验收 | 待用户复测 | 当前没有可核验的完整浏览器 E2E 结果 |
 | 正式数据库 / API | 未实现 | 原型 localStorage 不等于正式持久化 |
 
-交付附件：RINGS-v0.4-planning-workspace.html；交付包：RINGS-v0.4-planning-workspace-delivery.zip。详细规格与验收记录见 planning-workspace-v0.4-spec.md 和 planning-workspace-v0.4-acceptance.md。
+交付附件：RINGS-v0.8-planning-workspace.html；交付包：RINGS-v0.8-planning-workspace-delivery.zip。详细规格与验收记录见 planning-workspace-v0.8-spec.md 和 planning-workspace-v0.8-acceptance.md。
 
 ## 15. 下一步
 
-用户评审 v0.4 规划工作区原型，确认 Goal 指标口径和 Stage 规则；之后进入技术方案冻结，明确数据 Schema、存储、事务、迁移和桌面 / Web 平台适配，再决定正式开发顺序。
+用户评审 v0.8 规划工作区原型，确认 Goal 指标口径和 Stage 规则；之后进入技术方案冻结，明确数据 Schema、存储、事务、迁移和桌面 / Web 平台适配，再决定正式开发顺序。
