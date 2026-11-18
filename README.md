@@ -52,3 +52,12 @@ RINGS 将信息捕捉、方向与目标规划、任务执行、可视化时间�
 - [v0.2 运行说明](prototypes/execution-candidate-v0.2/README.md)
 
 v0.2 增加普通任务和习惯规则编辑交互；仍是内存原型，浏览器验收待进行。
+
+
+## 规划工作区 v0.4
+
+- 页面规格：[Planning Workspace v0.4](docs/02-design/planning-workspace-v0.4-spec.md)
+- 交付记录：[v0.4 release](docs/04-delivery/planning-workspace-v0.4-release.md)
+- 验收记录：[v0.4 acceptance](docs/05-quality/planning-workspace-v0.4-acceptance.md)
+
+v0.4 HTML 原型作为当前会话附件交付，状态为 prototype_only；当前仓库同步页面规格、流程、进度和验收文档，不代表正式应用已实现。

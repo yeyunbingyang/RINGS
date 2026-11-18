@@ -159,3 +159,25 @@ v0.2 文件：prototypes/execution-candidate-v0.2/index.html。
 | 正式附件存储 | 未实现 | 当前演示限制 1MB / 文件、3MB / Candidate，使用 localStorage |
 
 v0.3.1 会话附件：`RINGS-v0.3.1-execution-context.html` 与 `RINGS-v0.3.1-delivery.zip`。文件拖放 / 剪贴板在目标桌面浏览器仍需用户环境复测。
+
+
+## 14. 2026-11-18 规划工作区 v0.4
+
+| 工作项 | 状态 | 说明 |
+|---|---|---|
+| Direction 页面交互 | 原型首轮完成（prototype_only） | 新建、编辑、暂停、归档；方向可独立存在 |
+| Goal 页面交互 | 原型首轮完成（prototype_only） | 创建、编辑、搜索、状态筛选、指标更新、归档 |
+| Goal 指标 | 原型首轮完成（prototype_only） | 数值、里程碑、布尔、自定义；与 Task 完成率分离 |
+| Stage 管理 | 原型首轮完成（prototype_only） | 可选创建、编辑、排序、状态更新、删除 |
+| Goal / Task 关联 | 原型首轮完成（prototype_only） | 直接关联 Goal 或归属 Stage；支持创建与关联已有 Task |
+| Candidate 转 Goal | 原型首轮完成（prototype_only） | 演示数据转换，保留来源 Candidate 标识 |
+| Goal 删除与恢复 | 原型首轮完成（prototype_only） | 软删除、阶段和 Task 关系快照、恢复、永久删除确认 |
+| HTML / JavaScript 静态检查 | 已通过 | HTML 结构解析与 Node.js 语法检查 |
+| 浏览器交互与窄屏验收 | 待用户复测 | 当前没有可核验的完整浏览器 E2E 结果 |
+| 正式数据库 / API | 未实现 | 原型 localStorage 不等于正式持久化 |
+
+交付附件：RINGS-v0.4-planning-workspace.html；交付包：RINGS-v0.4-planning-workspace-delivery.zip。详细规格与验收记录见 planning-workspace-v0.4-spec.md 和 planning-workspace-v0.4-acceptance.md。
+
+## 15. 下一步
+
+用户评审 v0.4 规划工作区原型，确认 Goal 指标口径和 Stage 规则；之后进入技术方案冻结，明确数据 Schema、存储、事务、迁移和桌面 / Web 平台适配，再决定正式开发顺序。

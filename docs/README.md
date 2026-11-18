@@ -141,3 +141,12 @@ v0.3 补齐 Task / Habit 管理、按日期保存 HabitOccurrence、Candidate �
 - 会话附件：`RINGS-v0.3.1-execution-context.html`、`RINGS-v0.3.1-delivery.zip`
 
 v0.3.1 在 v0.3 基础上增加 Candidate 资料附件列表、Task Work Context 和独立专注页。附件仅为浏览器原型存储，限制 1MB / 文件、3MB / Candidate；正式文件服务尚未实现。
+
+
+## 15. 规划工作区 v0.4
+
+- 页面规格：`02-design/planning-workspace-v0.4-spec.md`
+- 交付记录：`04-delivery/planning-workspace-v0.4-release.md`
+- 验收记录：`05-quality/planning-workspace-v0.4-acceptance.md`
+
+v0.4 完成 Direction / Goal / Stage 的首轮规划工作区原型，支持目标指标、阶段拆分、Task 关联、Candidate 来源追溯和 Goal 回收站。HTML 原型作为当前会话附件交付；状态为 prototype_only。

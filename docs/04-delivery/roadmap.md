@@ -49,3 +49,8 @@ Review / Statistics、Collection / Relation、备份导出增强、批量调度�
 ## 页面架构补充（2026-11-18）
 
 执行层的页面入口调整为统一“执行库”，不再分别建设 Task Library 和 Habit 两个一级页面。Task、Habit、HabitOccurrence 的领域模型与业务规则保持独立。Candidate Pool 继续作为捕捉层独立页面。
+
+
+## 阶段 1 页面设计增量（2026-11-18）
+
+规划工作区 v0.4 已完成首轮 HTML 原型和页面规格（prototype_only），覆盖 Direction / Goal / Stage / Task 关联。用户评审通过后，进入阶段 2 技术方案冻结；当前不把原型交互标记为正式代码完成。
