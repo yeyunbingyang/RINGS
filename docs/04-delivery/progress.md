@@ -114,3 +114,19 @@
 | HabitOccurrence 历史 | 待实现 | 当前仍为单一今日状态演示，不是按日期记录的历史实例 |
 
 v0.2 文件：prototypes/execution-candidate-v0.2/index.html。
+
+
+## 11. 2026-11-18 复盘中心 v1.7.1
+
+| 工作项 | 状态 | 说明 |
+|---|---|---|
+| 复盘中心 PRD | 已完成（文档基线） | 每周优先；数据分析独立标签；任务、习惯、目标、时间安排全部纳入 |
+| 周期复盘 UI | 原型已完成（prototype_only） | 每日 / 每周 / 每月 / 自定义周期；五步复盘表单；草稿与完成状态 |
+| 数据分析 | 原型已完成（prototype_only） | Task / Plan 分离；计划时间 / Session 时间分离；精确 / 估算 / 未记录分离 |
+| 历史复盘与改进追踪 | 原型已完成（prototype_only） | 独立 Review 记录、快照、改进项状态 |
+| 业务事件历史 | 原型已完成（prototype_only） | Task、Plan、Habit、Goal、Candidate 轻量变更日志 |
+| 历史数据迁移 | 已加入兼容逻辑（prototype_only） | v1.6 / v1.5 / v1.4 读取；载入旧数据建立基线，不伪造事件 |
+| 浏览器冒烟验收 | 已通过（prototype_only） | Node 语法检查；Chromium 桌面 / 390px 窄屏；主要标签、周期、草稿、事件日志检查 |
+| 正式应用 / 数据库 | 未验证 | 当前仍为独立 HTML 原型；无正式后端、数据库事务或跨设备审计 |
+
+本次原型附件：`RINGS-v1.7.1-reflection-center.html`；完整包：`RINGS-v1.7.1-reflection-center.zip`。正式应用开发状态不因原型验收而升级。
