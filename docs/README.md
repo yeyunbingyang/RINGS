@@ -132,3 +132,12 @@ v1.7.0 重构周期复盘、数据分析、历史复盘和改进追踪；v1.7.1 
 - 会话附件：`RINGS-v0.3-execution-candidate.html` 与 `RINGS-v0.3-validated-delivery.zip`
 
 v0.3 补齐 Task / Habit 管理、按日期保存 HabitOccurrence、Candidate 备注与批量操作、显式转换、统一回收站和恢复流程。原型状态为 prototype_only；真实附件上传、数据库/API 和生产环境仍未实现。
+
+
+## 14. v0.3.1 工作上下文与资料附件
+
+- 交互规格：`02-design/execution-candidate-v0.3.1-spec.md`
+- 交付记录：`04-delivery/execution-candidate-v0.3.1-release.md`
+- 会话附件：`RINGS-v0.3.1-execution-context.html`、`RINGS-v0.3.1-delivery.zip`
+
+v0.3.1 在 v0.3 基础上增加 Candidate 资料附件列表、Task Work Context 和独立专注页。附件仅为浏览器原型存储，限制 1MB / 文件、3MB / Candidate；正式文件服务尚未实现。
