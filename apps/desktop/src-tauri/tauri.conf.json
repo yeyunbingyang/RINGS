@@ -25,5 +25,5 @@
     }
   },
   "bundle": { "active": true, "targets": "all", "icon": [] },
-  "plugins": { "sql": { "preload": ["sqlite:rings.db"] } }
+  "plugins": {}
 }
