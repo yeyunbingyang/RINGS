@@ -67,3 +67,12 @@ jobs:
 
       - name: Build Desktop application (without installer bundling)
         run: pnpm --filter @rings/desktop exec tauri build --no-bundle --ci
+
+      - name: Upload generated dependency lockfiles
+        uses: actions/upload-artifact@v4
+        with:
+          name: rings-dependency-lockfiles
+          path: |
+            pnpm-lock.yaml
+            apps/desktop/src-tauri/Cargo.lock
+          if-no-files-found: error
