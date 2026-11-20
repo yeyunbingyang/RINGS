@@ -167,3 +167,14 @@ v0.9 在 v0.8 原有规划工作区中加入甘特图视图，保留列表视图
 - 技术方案提案：`03-engineering/v1.0-technical-proposal.md`
 
 该提案依据当前 PRD、领域模型、v0.9 原型和既有 Roadmap，提出 React / TypeScript / Vite、Tauri 2、Desktop SQLite、Web IndexedDB、共享 Domain / Application 与 Repository Adapter 的候选方案。当前状态为待产品确认（proposal / not frozen），不代表技术栈已冻结或正式应用已启动开发。
+
+
+## 17. v1.0 技术冻结与正式项目骨架
+
+- 技术架构：[architecture.md](03-engineering/architecture.md)
+- 核心数据模型：[data-model.md](03-engineering/data-model.md)
+- ADR：[adr-log.md](03-engineering/adr-log.md)
+- 技术冻结记录：[v1.0-technical-proposal.md](03-engineering/v1.0-technical-proposal.md)
+- 骨架交付记录：[v1.0-foundation-release.md](04-delivery/v1.0-foundation-release.md)
+
+用户已确认 Desktop + Web 同时开发。Web 与 Desktop 共用 `apps/client`；Web 使用 IndexedDB，Desktop 使用 SQLite。v1.0 不含自动云同步。正式源码位于 `apps/` 和 `packages/`；当前仅首个 Task / Plan / WorkSession 纵向切片进入骨架，其他产品模块仍待开发。

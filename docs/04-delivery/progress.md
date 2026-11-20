@@ -218,3 +218,26 @@ v0.3.1 会话附件：`RINGS-v0.3.1-execution-context.html` 与 `RINGS-v0.3.1-de
 ### 下一步门槛
 
 先确认首发平台范围。平台范围确定后，冻结 ADR 与 Repository / Migration 设计，再建立应用骨架和 Task → Plan → WorkSession 纵向闭环。未确认前不把候选技术方案标记为已冻结，也不把原型 localStorage 当作正式数据层。
+
+
+## 17. 2026-11-20 v1.0 双端技术冻结与正式骨架
+
+| 工作项 | 状态 | 说明 |
+|---|---|---|
+| 首发平台范围 | 已确认 | 用户选择 B：Desktop + Web 同时开发 |
+| 技术栈 | 已冻结 | React 19.3、TypeScript 5.9、Vite 8.3、Tauri 2.12、pnpm Workspace |
+| 双端存储策略 | 已冻结 | Web IndexedDB；Desktop SQLite；v1.0 不做云同步 |
+| Domain / Application | 骨架已建立 | Task / Plan / WorkSession 与 RingsService |
+| Web Repository | 骨架已建立 | IndexedDB 对象存储与 CRUD / Session 操作 |
+| Desktop Repository | 骨架已建立 | Tauri SQL Plugin + SQLite |
+| SQLite migration | 已建立 | 0001_core.sql，Task / Plan / WorkSession |
+| 双端共享 UI | 已建立 | apps/client 为唯一 React SPA |
+| 首个交互切片 | 已建立 | Task 创建、完成、软删除 / 恢复；Plan 创建 / 取消；WorkSession 开始 / 结束 |
+| TypeScript / Web 构建 | 待 CI 验证 | 当前环境尚未执行 pnpm install / build |
+| Desktop 编译 | 待本机验证 | 需 Rust 1.90+ 与平台依赖 |
+| pnpm lockfile | 待生成 | 首次 pnpm install 后提交 |
+| 完整 E2E / 数据恢复 | 未验证 | 尚未进行真实双端持久化与重启验收 |
+
+### 本阶段边界
+
+本次提交建立的是正式源码骨架，不等于 v1.0 MVP 已完成。候选事项、规划完整页面、甘特图正式数据接入、习惯、复盘、附件和备份导入导出仍未完成。Web 与 Desktop 数据独立，不自动同步。

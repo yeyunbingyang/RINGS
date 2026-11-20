@@ -1,63 +1,100 @@
-# RINGS 数据模型设计（逻辑草案）
+# RINGS v1.0 核心数据模型
 
-> 本文不是最终 SQL Schema。字段类型、索引、约束和迁移脚本需在技术方案冻结后确定。
+> 状态：v1.0 foundation 物理 Schema 已建立；其余领域实体仍按 PRD 保留为逻辑模型，尚未建表。
 
-## 1. 核心实体与字段
+## 1. 本轮已落地实体
 
-| 实体 | 字段建议 |
-|---|---|
-| Candidate | id, title, category, status, source_uri, time_info, review_at, created_at, updated_at |
-| CandidateNote | id, candidate_id, content, sort_order, created_at, updated_at |
-| Tag | id, name, color |
-| CandidateTag | candidate_id, tag_id |
-| Direction | id, title, description, status, review_cycle |
-| Goal | id, direction_id, title, description, metric_type, baseline_value, target_value, unit, start_date, due_date, completion_criteria, status |
-| Stage | id, goal_id, title, description, sort_order, start_date, due_date, exit_criteria, status |
-| Task | id, parent_task_id, goal_id, stage_id, title, description, origin, priority, deadline, estimate_minutes, lifecycle_status, next_action |
-| Habit | id, title, recurrence_rule, start_date, end_date, preferred_time, target_type, target_value, unit, status |
-| HabitOccurrence | id, habit_id, occurrence_date, status, actual_value, completed_at |
-| Plan | id, owner_type, owner_id, plan_date, start_at, end_at, estimated_minutes, precision, status, previous_plan_id |
-| CalendarEvent | id, title, description, start_at, end_at, all_day, location, source_candidate_id |
-| WorkSession | id, task_id, habit_occurrence_id, started_at, ended_at, actual_seconds |
-| Thought | id, task_id, session_id, candidate_id, type, content, created_at |
-| WorkContext | id, owner_type, owner_id, context_type, title, uri, note |
-| Material | id, material_type, storage_mode, display_name, uri, local_path, mime_type, file_size, availability_status |
-| ObjectMaterial | id, owner_type, owner_id, material_id, note, sort_order |
-| Collection | id, parent_id, name, icon, color, sort_order |
-| Relation | id, from_type, from_id, to_type, to_id, relation_type, created_at |
+| 实体 | Web 存储 | Desktop 存储 | 说明 |
+|---|---|---|---|
+| Task | IndexedDB `tasks` | SQLite `tasks` | 正式执行事项 |
+| Plan | IndexedDB `plans` | SQLite `plans` | 预定时间安排 |
+| WorkSession | IndexedDB `workSessions` | SQLite `work_sessions` | 实际执行记录 |
 
-## 2. 关键约束
+## 2. Task
 
-- Candidate.category 使用固定枚举。
-- CandidateNote 独立存储，支持排序。
-- Task 父子关系使用 parent_task_id。
-- Task 生命周期状态与调度状态分离。
-- Task 可以关联多个 Plan。
-- Plan owner_type 当前建议支持 task / habit_occurrence。
-- CalendarEvent 与 Task 分离。
-- WorkSession 不应通过 Plan 推算实际时长。
-- Material 与业务对象通过关联表连接。
-- External Reference 不应保存源文件内容。
-- 归档和删除采用不同策略。
+字段：
+- `id`：稳定 ID。
+- `parentTaskId`：可选父任务 ID。
+- `goalId` / `stageId`：可选规划关联；当前预留字段，目标和阶段表尚未纳入首个 migration。
+- `title`、`description`。
+- `priority`：low / normal / high / urgent。
+- `status`：open / in_progress / blocked / completed / cancelled / archived。
+- `deadlineAt`：独立截止时间。
+- `estimateMinutes`：可选预计耗时。
+- `createdAt`、`updatedAt`。
+- `deletedAt`：软删除时间；为空表示未删除。
 
-## 3. 时间存储
+约束：
+1. 标题不能为空。
+2. 任务生命周期状态不等于调度状态。
+3. 删除通过设置 `deletedAt`，不物理删除行。
+4. 恢复清空 `deletedAt`，不重建任务 ID。
+5. Task 被软删除时，相关 Plan 和 WorkSession 保留。
 
-- 时间点建议存储为明确时区语义的时间戳。
-- 全天事件应使用日期语义，不强制转成 UTC 时间点。
-- 展示时按用户设置时区转换。
-- 重复规则需保存时区和本地时间语义。
-- 计时以开始、暂停、恢复、结束事件或等效时间戳为事实来源。
+## 3. Plan
 
-## 4. 索引建议
+字段：
+- `id)、`taskId)。
+- `planDate)：用户本地日历日期（YYYY-MM-DD）。
+- `startAt)、`endAt)：ISO 8601 UTC 时间点；日期级计划可为空，但必须同时为空。
+- `timezone)：IANA 时区。
+- `status)：planned / cancelled / completed。
+- `previousPlanId)：可选的接续来源。
+- `createdAt)、`updatedAt)。
 
-待实现时评估 Candidate title / status / category、Task lifecycle_status / deadline / parent_task_id、Plan plan_date / start_at / end_at、WorkSession task_id / started_at、Relation 两端索引、Material availability_status 和全文搜索范围。
+约束：
+1. 一个 Task 可有多个 Plan。
+2. 开始和结束时间必须同时填写或同时为空。
+3. 若有时间点，endAt 必须晚于 startAt。
+4. 取消 Plan 仅更新状态；不删除 Task。
+5. Deadline 不属于 Plan，也不由 Plan 自动修改。
+6. 拖动时间条应更新同一个 Plan ID。
 
-## 5. 待冻结问题
+## 4. WorkSession
 
-- Goal 指标是否采用 JSON 配置。
-- Habit recurrence_rule 的表达方式。
-- HabitOccurrence 采用按需生成还是预生成。
-- Review 是否独立实体。
-- Thought 是否允许全局记录。
-- Material 与 Attachment / ExternalReference 是否拆分表。
-- 删除策略、回收站和历史审计。
+字段：
+- `id)、`taskId)。
+- `startedAt)、`endedAt)。
+- `actualSeconds)。
+- `createdAt)、`updatedAt)。
+
+约束：
+1. WorkSession 是实际投入记录，不由 Plan 推算。
+2. 同一个 Task 同时最多存在一条 endedAt 为空的 Session。
+3. 结束时间不得早于开始时间。
+4. 已结束记录不得被再次结束覆盖。
+5. 删除 Task 不级联删除 WorkSession。
+
+## 5. SQLite Migration
+
+首个 migration：`apps/desktop/src-tauri/migrations/0001_core.sql`。
+
+包含：
+- tasks、plans、work_sessions 三张表。
+- 外键约束和检查约束。
+- 常用查询索引。
+- 每个 Task 单条活动 WorkSession 的部分唯一索引。
+
+Migration 由 Tauri SQL Plugin 在连接 `sqlite:rings.db` 时应用，版本号由插件管理。Web IndexedDB 使用数据库版本号 1 建立对应 object stores。
+
+## 6. 删除策略
+
+| 操作 | Task | Plan | WorkSession |
+|---|---|---|---|
+| 移入回收站 | 设置 deletedAt | 保留 | 保留 |
+| 恢复 | 清空 deletedAt | 保留 | 保留 |
+| 取消计划 | 不变 | status=cancelled | 不变 |
+| 永久删除 | v1.0 暂不开放 | 不级联删除 | 不级联删除 |
+
+## 7. 逻辑模型中尚未物理落地的实体
+
+Candidate、CandidateNote、Material、ObjectMaterial、Direction、Goal、Stage、Habit、HabitOccurrence、CalendarEvent、Thought、WorkContext、Review、Collection、Relation 等仍按产品 PRD 和既有领域模型规划。
+
+它们不属于本轮 migration，不应因为出现在领域文档中就被认为已经完成数据库实现。
+
+## 8. 时间存储
+
+- 时间点：ISO 8601 UTC。
+- 日期：YYYY-MM-DD，保留本地日期语义。
+- 时区：IANA Time Zone。
+- 计时：开始 / 结束时间戳作为事实来源；actualSeconds 为结束时计算并持久化的结果。

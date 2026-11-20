@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "useDefineForClassFields": true,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "Bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "noEmit": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "@rings/domain": ["packages/domain/src/index.ts"],
+      "@rings/application": ["packages/application/src/index.ts"],
+      "@rings/infrastructure-web": ["packages/infrastructure-web/src/index.ts"],
+      "@rings/infrastructure-desktop": ["packages/infrastructure-desktop/src/index.ts"]
+    }
+  }
+}
