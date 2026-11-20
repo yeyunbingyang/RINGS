@@ -200,3 +200,21 @@ v0.3.1 会话附件：`RINGS-v0.3.1-execution-context.html` 与 `RINGS-v0.3.1-de
 | 正式 API / 数据库 / Plan 服务 | 未实现 | 当前仍是 localStorage 原型 |
 
 交付文件：`prototypes/planning-workspace-v0.9/index.html`；规格、交付和验收文档分别位于 `docs/02-design/`、`docs/04-delivery/`、`docs/05-quality/`。原型验收不等同正式应用完成。
+
+
+## 16. 2026-11-20 v1.0 技术方案评审启动
+
+| 工作项 | 状态 | 说明 |
+|---|---|---|
+| 当前仓库源码核验 | 已完成 | 当前仓库以 docs / prototypes 为主，尚无正式应用源码 |
+| v0.9 原型基线核验 | 已完成 | 列表 + 甘特图；localStorage；prototype_only |
+| v1.0 技术方案提案 | 已提交评审 | `docs/03-engineering/v1.0-technical-proposal.md` |
+| 技术栈冻结 | 待用户确认 | React / TypeScript / Vite、Tauri 2 候选方案 |
+| 首发平台范围 | 待用户确认 | Windows Desktop 优先，或 Desktop + Web 同时首发 |
+| Web 数据策略 | 待用户确认 | IndexedDB 本地存储，首版通过导入 / 导出交换数据；不包含云同步 |
+| Plan 冲突策略 | 待用户确认 | 默认提示冲突，不自动重排；是否允许确认后保存重叠安排 |
+| 正式应用源码 | 未开始 | 等技术决策确认后建立最小可运行骨架 |
+
+### 下一步门槛
+
+先确认首发平台范围。平台范围确定后，冻结 ADR 与 Repository / Migration 设计，再建立应用骨架和 Task → Plan → WorkSession 纵向闭环。未确认前不把候选技术方案标记为已冻结，也不把原型 localStorage 当作正式数据层。
