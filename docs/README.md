@@ -180,3 +180,9 @@ v0.9 在 v0.8 原有规划工作区中加入甘特图视图，保留列表视图
 用户已确认 Desktop + Web 同时开发。Web 与 Desktop 共用 `apps/client`；Web 使用 IndexedDB，Desktop 使用 SQLite。v1.0 不含自动云同步。正式源码位于 `apps/` 和 `packages/`；当前仅首个 Task / Plan / WorkSession 纵向切片进入骨架，其他产品模块仍待开发。
 
 - 验收记录：[v1.0-foundation-acceptance.md](05-quality/v1.0-foundation-acceptance.md)
+
+
+## v1.0.1 双端运行验收
+
+- 本机验收清单：[v1.0.1-runtime-checklist.md](05-quality/v1.0.1-runtime-checklist.md)
+- 自动化验收记录：[v1.0-foundation-acceptance.md](05-quality/v1.0-foundation-acceptance.md)
