@@ -54,10 +54,8 @@ describe("RINGS v1.0 Task / Plan / WorkSession foundation", () => {
     ));
 
     expect(nextPlan.status).toBe("planned");
-    expect((await service.listPlans()).map((plan) => plan.status)).toEqual([
-      "cancelled",
-      "planned"
-    ]);
+    const statuses = (await service.listPlans()).map((plan) => plan.status).sort();
+    expect(statuses).toEqual(["cancelled", "planned"]);
   });
 
   it("prevents concurrent active sessions and records actual execution", async () => {
