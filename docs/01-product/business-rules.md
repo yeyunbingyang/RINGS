@@ -56,6 +56,12 @@
 7. 任务从时间线移回任务池，取消未来安排，不删除 Task。
 8. 时间冲突需要提示，不静默覆盖其他计划。
 9. 计划调整不覆盖 WorkSession 历史。
+10. 规划甘特图是 Goal / Stage / Task Plan 的可视化视图，不新增独立 Gantt 领域对象。
+11. Goal / Stage 日期调整只修改当前对象，不自动级联修改子对象或关联 Task。
+12. Task 在甘特图中的时间条读取 Plan；一个 Task 可以拥有多个 Plan，每条 Plan 独立显示和编辑。
+13. Plan 变更不覆盖 Deadline；Deadline 变更不修改 Plan。
+14. 在甘特图未排期池中拖动 Task，只创建 Plan，不复制 Task。
+15. 取消 Plan 不删除 Task；当 Task 没有其他有效 Plan 时，重新进入未排期任务池。
 
 ## 7. Deadline / Plan / WorkSession
 
