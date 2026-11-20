@@ -234,7 +234,7 @@ v0.3.1 会话附件：`RINGS-v0.3.1-execution-context.html` 与 `RINGS-v0.3.1-de
 | 双端共享 UI | 已建立 | apps/client 为唯一 React SPA |
 | 首个交互切片 | 已建立 | Task 创建、完成、软删除 / 恢复；Plan 创建 / 取消；WorkSession 开始 / 结束 |
 | TypeScript / Web 构建 | 已通过 CI | Node 22.12 + pnpm 10；typecheck 与 Vite production build 均通过 |
-| Desktop 编译 | 待本机验证 | 需 Rust 1.90+ 与平台依赖 |
+| Desktop 编译 | 已通过 Windows CI | Tauri build --no-bundle 成功；桌面运行和安装包仍待本机验证 |
 | pnpm lockfile | 待生成 | 首次 pnpm install 后提交 |
 | 完整 E2E / 数据恢复 | 未验证 | 尚未进行真实双端持久化与重启验收 |
 
@@ -243,4 +243,4 @@ v0.3.1 会话附件：`RINGS-v0.3.1-execution-context.html` 与 `RINGS-v0.3.1-de
 本次提交建立的是正式源码骨架，不等于 v1.0 MVP 已完成。候选事项、规划完整页面、甘特图正式数据接入、习惯、复盘、附件和备份导入导出仍未完成。Web 与 Desktop 数据独立，不自动同步。
 
 - CI 记录：Web typecheck / production build 已通过（run 44748072128）。
-- Desktop Windows 编译已加入 CI，结果待本轮工作流完成；尚未验证安装包打包。
+- Desktop Windows Tauri 编译已通过 CI（run 44749564040，--no-bundle）；尚未验证安装包打包。
