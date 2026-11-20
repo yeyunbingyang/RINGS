@@ -14,6 +14,7 @@
 | CAP-02-01 | Direction | UI-02-01 | DEV-02-01 | TEST-02-01 |
 | CAP-02-02 | Goal | UI-02-02 | DEV-02-02 | TEST-02-02 |
 | CAP-02-04 | Stage | UI-02-02 | DEV-02-03 | TEST-02-03 |
+| CAP-02-07 | 规划甘特图视图 | UI-02-03 | DEV-02-04 | TEST-02-04 |
 | CAP-03-01 | Task 管理 | UI-03-01 | DEV-03-01 | TEST-03-01 |
 | CAP-03-02 | Subtask | UI-03-01 | DEV-03-02 | TEST-03-02 |
 | CAP-03-05 | Habit | UI-03-01 | DEV-03-03 | TEST-03-03 |
@@ -103,3 +104,22 @@
 | TEST-PROTO-EXEC-10 | 保存习惯规则修改 | 更新原 Habit，不重置今日状态 | 待浏览器验收 |
 | TEST-PROTO-EXEC-11 | 只填写量词数值或单位 | 阻止保存并提示补齐 | 待浏览器验收 |
 | TEST-PROTO-EXEC-12 | 编辑时尝试切换 Task / Habit 类型 | 类型选择锁定，不允许变更实体类型 | 待浏览器验收 |
+
+
+## 7. 规划工作区甘特图 v0.9 原型追踪
+
+以下为 Chromium 原型冒烟检查，不代表正式应用测试。
+
+| 测试编号 | 场景 | 当前结果 |
+|---|---|---|
+| TEST-PROTO-PLAN-01 | v0.8 列表视图保留与列表 / 甘特图切换 | 通过 |
+| TEST-PROTO-PLAN-02 | 周 / 月 / 季 / 年尺度切换 | 通过 |
+| TEST-PROTO-PLAN-03 | Goal 日期调整不级联修改 Stage | 通过 |
+| TEST-PROTO-PLAN-04 | Task Plan 创建、移动和边缘调整 | 通过 |
+| TEST-PROTO-PLAN-05 | Task Deadline 独立显示和编辑 | 通过 |
+| TEST-PROTO-PLAN-06 | 取消 Plan 不删除 Task | 通过 |
+| TEST-PROTO-PLAN-07 | 未排期 Task 拖入时间轴创建 Plan | 合成 DragEvent 检查通过；真实浏览器手感待复测 |
+| TEST-PROTO-PLAN-08 | 390px / 768px / 1440px 页面宽度 | 通过 |
+| TEST-PROTO-PLAN-09 | JavaScript pageerror | 0 |
+
+证据级别：prototype_only。localStorage 不是正式持久化；尚无正式 API、数据库事务或端到端测试套件。

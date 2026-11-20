@@ -1,6 +1,6 @@
 # RINGS 项目进度
 
-> 截止日期：2026-11-18  
+> 截止日期：2026-11-20  
 > 状态来源：当前可核验的文档与原型文件。不把原型交互当作正式开发完成。
 
 ## 1. 总体状态
@@ -181,3 +181,22 @@ v0.3.1 会话附件：`RINGS-v0.3.1-execution-context.html` 与 `RINGS-v0.3.1-de
 ## 15. 下一步
 
 用户评审 v0.8 规划工作区原型，确认 Goal 指标口径和 Stage 规则；之后进入技术方案冻结，明确数据 Schema、存储、事务、迁移和桌面 / Web 平台适配，再决定正式开发顺序。
+
+
+## 15. 2026-11-20 规划工作区 v0.9（列表 + 甘特图）
+
+| 工作项 | 状态 | 说明 |
+|---|---|---|
+| v0.8 列表工作区保留 | 已验证（prototype_only） | Direction / Goal / Stage / Task 三栏结构保留 |
+| 列表 / 甘特图切换 | 已验证（prototype_only） | 列表为默认视图 |
+| 甘特图时间尺度 | 已验证（prototype_only） | 周 / 月 / 季 / 年 |
+| Goal / Stage 时间条 | 已验证（prototype_only） | 修改日期不级联影响子项 |
+| Task Plan 可视化 | 已验证（prototype_only） | 支持多个 Plan；Plan 与 Task 分离 |
+| Deadline 独立标记 | 已验证（prototype_only） | 不随 Plan 自动改期 |
+| Task 拖入时间轴创建 Plan | 事件处理已检查（prototype_only） | 不复制 Task；真实桌面拖放仍建议用户复测 |
+| Plan 取消与 Task 保留 | 已验证（prototype_only） | 无其他有效 Plan 时回到未排期池 |
+| 390 / 768 / 1440px 布局 | 已验证（prototype_only） | 页面无横向溢出 |
+| HTML / JavaScript 静态检查 | 已通过 | HTML 结构与 node --check |
+| 正式 API / 数据库 / Plan 服务 | 未实现 | 当前仍是 localStorage 原型 |
+
+交付文件：`prototypes/planning-workspace-v0.9/index.html`；规格、交付和验收文档分别位于 `docs/02-design/`、`docs/04-delivery/`、`docs/05-quality/`。原型验收不等同正式应用完成。

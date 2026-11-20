@@ -150,3 +150,13 @@ v0.3.1 在 v0.3 基础上增加 Candidate 资料附件列表、Task Work Context
 - 验收记录：`05-quality/planning-workspace-v0.8-acceptance.md`
 
 v0.8 完成 Direction / Goal / Stage 的首轮规划工作区原型，支持目标指标、阶段拆分、Task 关联、Candidate 来源追溯和 Goal 回收站。HTML 原型已提交至 `prototypes/planning-workspace-v0.8/index.html`，可下载后直接在浏览器打开；使用 localStorage 演示数据，状态为 prototype_only。
+
+
+## 16. 规划工作区 v0.9（列表 + 甘特图）
+
+- 页面规格：`02-design/planning-workspace-v0.9-spec.md`
+- 交付记录：`04-delivery/planning-workspace-v0.9-release.md`
+- 验收记录：`05-quality/planning-workspace-v0.9-acceptance.md`
+- HTML 原型：`prototypes/planning-workspace-v0.9/index.html`
+
+v0.9 在 v0.8 原有规划工作区中加入甘特图视图，保留列表视图为默认。Goal / Stage 使用规划日期，Task 使用 Plan 时间，Deadline 独立显示。当前为 prototype_only；正式 API、数据库和 Plan 服务联动尚未实现。

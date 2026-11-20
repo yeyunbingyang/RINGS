@@ -39,6 +39,7 @@
 | CAP-02-04 | Stage 阶段拆分与排序 | P0 | 已纳入基线 |
 | CAP-02-05 | Goal / Stage 与 Task 关联 | P0 | 多阶段关联规则待决策 |
 | CAP-02-06 | 目标进度自动计算 | P2 | 增强能力 |
+| CAP-02-07 | 规划甘特图视图（Goal / Stage / Task Plan 时间关系） | P1 | v0.9 原型完成（prototype_only） |
 
 ### CAP-03 执行能力
 
@@ -124,3 +125,10 @@ P0 不代表已经开发，也不代表所有 P0 必须在同一个软件版本�
 | 执行库 v0.1 | CAP-03 Task、Subtask、Habit、HabitOccurrence 的页面入口与首轮交互 | prototype_only | HabitOccurrence 生成策略、完整编辑和正式执行记录待补 |
 
 原型证据只说明页面结构或交互已在 HTML 中呈现，不改变 CAP 优先级，也不代表 API、数据库或正式应用开发完成。
+
+
+## 6. 规划工作区甘特图原型证据（2026-11-20）
+
+| 原型 | 能力覆盖 | 证据级别 | 限制 |
+|---|---|---|---|
+| 规划工作区 v0.9 | CAP-02-07；关联 CAP-02 Goal / Stage 与 CAP-04 Task → Plan | prototype_only | 日期粒度原型；正式 Plan 服务、冲突检测、关键路径和资源负载未实现 |
