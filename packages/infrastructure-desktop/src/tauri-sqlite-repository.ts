@@ -90,11 +90,20 @@ function mapSession(row: WorkSessionRow): WorkSession {
 
 export class TauriSqliteRingsRepository implements RingsRepository {
   private database: SqlDatabase | null = null;
+  private initialization: Promise<void> | null = null;
 
   async initialize(): Promise<void> {
-    if (this.database) return;
-    this.database = await Database.load("sqlite:rings.db");
-    await this.database.execute("PRAGMA foreign_keys = ON");
+    if (!this.initialization) {
+      this.initialization = (async () => {
+        this.database = await Database.load("sqlite:rings.db");
+        await this.database.execute("PRAGMA foreign_keys = ON");
+      })().catch((cause) => {
+        this.initialization = null;
+        this.database = null;
+        throw cause;
+      });
+    }
+    await this.initialization;
   }
 
   private get db(): SqlDatabase {

@@ -8,19 +8,28 @@ export interface RuntimeRepository {
   storage: "IndexedDB" | "SQLite";
 }
 
-export async function createRuntimeRepository(): Promise<RuntimeRepository> {
-  if (isTauri()) {
-    const { TauriSqliteRingsRepository } = await import("@rings/infrastructure-desktop");
-    return {
-      repository: new TauriSqliteRingsRepository(),
-      platform: "Desktop",
-      storage: "SQLite"
-    };
-  }
+let runtimePromise: Promise<RuntimeRepository> | null = null;
 
-  return {
-    repository: new IndexedDbRingsRepository(),
-    platform: "Web",
-    storage: "IndexedDB"
-  };
+export function createRuntimeRepository(): Promise<RuntimeRepository> {
+  if (!runtimePromise) {
+    runtimePromise = (async () => {
+      if (isTauri()) {
+        const { TauriSqliteRingsRepository } = await import("@rings/infrastructure-desktop");
+        return {
+          repository: new TauriSqliteRingsRepository(),
+          platform: "Desktop" as const,
+          storage: "SQLite" as const
+        };
+      }
+      return {
+        repository: new IndexedDbRingsRepository(),
+        platform: "Web" as const,
+        storage: "IndexedDB" as const
+      };
+    })().catch((cause) => {
+      runtimePromise = null;
+      throw cause;
+    });
+  }
+  return runtimePromise;
 }
