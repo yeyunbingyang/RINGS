@@ -8,6 +8,8 @@
     "build:web": "pnpm --filter @rings/client build",
     "dev:desktop": "pnpm --filter @rings/desktop dev",
     "build:desktop": "pnpm --filter @rings/desktop build",
-    "typecheck": "pnpm --filter @rings/client typecheck"
+    "typecheck": "pnpm --filter @rings/client typecheck",
+    "test": "pnpm --filter @rings/client test",
+    "verify": "pnpm typecheck && pnpm test && pnpm build:web"
   }
 }

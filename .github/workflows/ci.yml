@@ -32,6 +32,9 @@ jobs:
       - name: Type check
         run: pnpm typecheck
 
+      - name: Unit and IndexedDB integration tests
+        run: pnpm test
+
       - name: Build Web
         run: pnpm build:web
 
@@ -58,6 +61,9 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
+
+      - name: Verify Tauri CLI
+        run: pnpm --filter @rings/desktop exec tauri --version
 
       - name: Build Desktop application (without installer bundling)
         run: pnpm --filter @rings/desktop exec tauri build --no-bundle --ci
