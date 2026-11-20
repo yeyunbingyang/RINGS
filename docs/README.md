@@ -160,3 +160,10 @@ v0.8 完成 Direction / Goal / Stage 的首轮规划工作区原型，支持目�
 - HTML 原型：`prototypes/planning-workspace-v0.9/index.html`
 
 v0.9 在 v0.8 原有规划工作区中加入甘特图视图，保留列表视图为默认。Goal / Stage 使用规划日期，Task 使用 Plan 时间，Deadline 独立显示。当前为 prototype_only；正式 API、数据库和 Plan 服务联动尚未实现。
+
+
+## 17. v1.0 技术方案评审
+
+- 技术方案提案：`03-engineering/v1.0-technical-proposal.md`
+
+该提案依据当前 PRD、领域模型、v0.9 原型和既有 Roadmap，提出 React / TypeScript / Vite、Tauri 2、Desktop SQLite、Web IndexedDB、共享 Domain / Application 与 Repository Adapter 的候选方案。当前状态为待产品确认（proposal / not frozen），不代表技术栈已冻结或正式应用已启动开发。
