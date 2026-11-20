@@ -250,9 +250,9 @@ export default function App() {
                           ) : (
                             <>
                               {running ? (
-                                <button className="small-button focus-active" onClick={() => void runAction((target) => target.finishWorkSession(running.id))}>结束专注</button>
+                                <button className="small-button focus-active" onClick={() => void runAction(async (target) => { await target.finishWorkSession(running.id); })}>结束专注</button>
                               ) : (
-                                <button className="small-button" disabled={busy || terminal} onClick={() => void runAction((target) => target.startWorkSession(task.id))}>专注</button>
+                                <button className="small-button" disabled={busy || terminal} onClick={() => void runAction(async (target) => { await target.startWorkSession(task.id); })}>专注</button>
                               )}
                               <button className="small-button" disabled={busy || terminal} onClick={() => void runAction((target) => target.completeTask(task.id))}>完成</button>
                               <button className="icon-button" title="移入回收站" disabled={busy} onClick={() => {
