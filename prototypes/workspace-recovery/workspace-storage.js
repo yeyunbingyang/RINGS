@@ -1,5 +1,6 @@
 (() => {
-  const browserOnly = location.protocol === 'file:';
+  const previewMode = new URLSearchParams(location.search).get('preview') === '1';
+  const browserOnly = location.protocol === 'file:' || previewMode;
   const coreKey = 'rings-data-v171';
   const otherKeys = [
     'rings-review-v17', 'rings-event-log-v171', 'rings-nav-config-v08',
@@ -152,7 +153,19 @@
   }
 
   async function open() {
-    if (browserOnly) return;
+    if (browserOnly) {
+      if (previewMode) {
+        document.title = 'RINGS · 在线原型预览';
+        const notice = document.createElement('div');
+        notice.textContent = '在线预览 · 数据仅保存在当前浏览器';
+        notice.setAttribute('role', 'status');
+        notice.style.cssText = 'padding:8px 10px;margin:8px 12px;border:1px solid #dce6df;border-radius:9px;color:#617268;font-size:11px;line-height:1.5';
+        document.querySelector('.sidebar-bottom')?.prepend(notice);
+        const dataNote = document.querySelector('.settings-data-note');
+        if (dataNote) dataNote.textContent = '在线预览数据仅保存在当前浏览器。可导出 JSON 备份；导入备份会替换此浏览器当前预览数据。';
+      }
+      return;
+    }
     try {
       let state = await request('GET');
       if (!state.data) state = await chooseInitialData();
