@@ -49,28 +49,18 @@ RINGS 将信息捕捉、方向与目标规划、任务执行、可视化时间�
 开发进度以 [`docs/04-delivery/progress.md`](docs/04-delivery/progress.md) 为准。
 
 
-## 最新 HTML 原型
+## HTML 原型
 
-- [执行库 + 候选事项原型 v0.1](prototypes/execution-candidate-v0.1/index.html)
-- [原型运行说明](prototypes/execution-candidate-v0.1/README.md)
+当前保留的原型是恢复版工作台：[入口页面](prototypes/workspace-recovery/index.html) 与 [甘特图视图](prototypes/workspace-recovery/gantt.html)。本机 ToolOrbit 工作台沿用该界面基线。原型使用浏览器 localStorage 演示数据，状态为 prototype_only，不代表正式应用已实现。
 
-
-## 执行库与候选事项原型
-
-- [v0.1 页面基线](prototypes/execution-candidate-v0.1/index.html)
-- [v0.2 编辑增强](prototypes/execution-candidate-v0.2/index.html)
-- [v0.2 运行说明](prototypes/execution-candidate-v0.2/README.md)
-
-v0.2 增加普通任务和习惯规则编辑交互；仍是内存原型，浏览器验收待进行。
+早期 HTML 原型文件（执行库 / 候选事项 v0.1、v0.2，规划工作区 v0.8、v0.9）已从仓库移除；对应的页面规格、交付与验收文档仍保留在 `docs/` 中作为设计历史记录。
 
 
-## 规划工作区 v0.8
+## 规划工作区 v0.8 文档
 
 - 页面规格：[Planning Workspace v0.8](docs/02-design/planning-workspace-v0.8-spec.md)
 - 交付记录：[v0.8 release](docs/04-delivery/planning-workspace-v0.8-release.md)
 - 验收记录：[v0.8 acceptance](docs/05-quality/planning-workspace-v0.8-acceptance.md)
-
-HTML 原型已提交至 [`prototypes/planning-workspace-v0.8/index.html`](prototypes/planning-workspace-v0.8/index.html)，下载后使用 Chrome / Edge 打开即可。原型使用浏览器 localStorage 演示数据，状态为 prototype_only，不代表正式应用已实现。
 
 
 ## 规划工作区 v0.9（列表 + 甘特图）
@@ -78,7 +68,6 @@ HTML 原型已提交至 [`prototypes/planning-workspace-v0.8/index.html`](protot
 - 原有 v0.8 Direction / Goal / Stage / Task 列表工作区完整保留。
 - 新增列表视图 / 甘特图视图切换；甘特图支持周 / 月 / 季 / 年尺度。
 - Task 时间条读取 Plan；Deadline 独立显示；一个 Task 可以拥有多个 Plan。
-- 原型：[prototypes/planning-workspace-v0.9/index.html](prototypes/planning-workspace-v0.9/index.html)
 - 页面规格：[docs/02-design/planning-workspace-v0.9-spec.md](docs/02-design/planning-workspace-v0.9-spec.md)
 - 交付记录：[docs/04-delivery/planning-workspace-v0.9-release.md](docs/04-delivery/planning-workspace-v0.9-release.md)
 - 验收记录：[docs/05-quality/planning-workspace-v0.9-acceptance.md](docs/05-quality/planning-workspace-v0.9-acceptance.md)
