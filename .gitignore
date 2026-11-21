@@ -1,0 +1,13 @@
+# 本机运行时数据与缓存（不纳入版本库）
+data/
+.runtime/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+
+# 日志与临时文件
+*.log
+*.tmp
+*.bak
+.DS_Store
+Thumbs.db

@@ -1,0 +1,54 @@
+[hidden] { display: none !important; }
+#workspaceHeader strong { font-size: 16px; }
+#planningActions, .workspace-actions, .workspace-tabs { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; }
+#workspaceModule { width: 100%; height: calc(100dvh - 68px); display: block; border: 0; background: var(--bg); }
+.workspace-title { margin: 0; font-size: clamp(23px, 3vw, 34px); line-height: 1.15; letter-spacing: -.04em; }
+.workspace-heading { display: flex; align-items: flex-end; flex-wrap: wrap; justify-content: space-between; gap: 12px; margin-bottom: 17px; }
+.workspace-heading p, .workspace-muted { color: #58675e; margin: 4px 0; }
+.workspace-calendar { display: grid; grid-template-columns: minmax(0, 2fr) minmax(250px, 1fr); gap: 13px; align-items: start; }
+.workspace-panel { min-width: 0; padding: 13px; }
+.workspace-panel h2 { margin: 0 0 8px; font-size: 14px; }
+.workspace-panel .workspace-actions { margin-bottom: 9px; }
+.workspace-list { display: grid; gap: 6px; }
+.workspace-scroll { max-height: max(235px, calc(100dvh - 350px)); overflow: auto; scrollbar-width: thin; }
+.workspace-item { min-width: 0; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; border: 1px solid var(--line); border-radius: 8px; background: #fbfcfa; padding: 8px; overflow-wrap: anywhere; }
+.workspace-item small { display: block; color: #58675e; }
+.workspace-slot { min-height: 39px; display: grid; grid-template-columns: 57px minmax(0, 1fr); gap: 8px; border-top: 1px solid var(--line); align-items: start; padding: 5px 0; }
+.workspace-slot .btn { text-align: left; }
+.workspace-period { display: grid; grid-template-columns: repeat(var(--columns), minmax(0, 1fr)); gap: 5px; }
+.workspace-cell { min-height: 54px; min-width: 0; text-align: left; padding: 6px; overflow-wrap: anywhere; }
+.workspace-cell small { display: block; color: #58675e; }
+.workspace-cell[aria-current="date"] { border-color: var(--green); background: var(--pale); }
+.workspace-kpis, .workspace-review-grid { display: grid; gap: 8px; margin-bottom: 12px; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.workspace-review-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.workspace-kpi { padding: 9px 12px; border: 1px solid var(--line); border-radius: 9px; background: #fff; }
+.workspace-kpi b, .workspace-kpi small { display: block; }
+.workspace-kpi b { font-size: 18px; }
+.workspace-kpi small { color: #58675e; }
+.workspace-tabs { margin-bottom: 12px; }
+.workspace-tabs button[aria-pressed="true"] { color: #fff; background: var(--green2); border-color: var(--green2); }
+.workspace-panel textarea, .workspace-panel input:not([type="checkbox"]), .workspace-panel select {
+  font: inherit; max-width: 100%; padding: 6px; color: var(--ink); border: 1px solid var(--line); border-radius: 6px; background: #fff;
+}
+.workspace-panel textarea { display: block; width: 100%; min-height: 54px; resize: vertical; }
+.workspace-panel label { display: block; margin-bottom: 8px; }
+.workspace-panel + .workspace-panel { margin-top: 8px; }
+.workspace-calendar > .workspace-panel + .workspace-panel { margin-top: 0; }
+.workspace-calendar.is-focused { position: fixed; z-index: 8; inset: 0; padding: 12px; display: block; overflow: auto; background: var(--bg); }
+.workspace-calendar.is-focused > :last-child { display: none; }
+.workspace-calendar.is-focused .workspace-scroll { max-height: calc(100dvh - 129px); }
+#otherTrash { margin-top: 12px; }
+.workspace-clock { font-variant-numeric: tabular-nums; font-size: 32px; display: block; margin: 8px 0; }
+@media (max-width: 950px) {
+  .workspace-calendar { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 740px) {
+  .side .nav { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 3px; overflow: visible; }
+  .side .nav button { width: 100%; padding: 6px 2px; text-align: center; font-size: 11px; }
+  #workspaceModule { height: calc(100dvh - 145px); }
+  .workspace-kpis, .workspace-review-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .workspace-cell { padding: 3px; font-size: 11px; }
+}
+@media (max-width: 400px) {
+  .workspace-review-grid { grid-template-columns: minmax(0, 1fr); }
+}

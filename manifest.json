@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 2,
+  "id": "rings",
+  "name": "productivity-RINGS",
+  "version": "1.0.0-local.1",
+  "description": "年轮本机工作台，管理任务、目标、日程和复盘",
+  "icon": "web",
+  "actions": {
+    "start": {
+      "kind": "batch",
+      "path": "script/start-webui.bat",
+      "args": ["-HostAddress", "{host}", "-Port", "{port}"],
+      "execution": "managed"
+    },
+    "check": {
+      "kind": "batch",
+      "path": "script/check-env.bat",
+      "execution": "managed"
+    },
+    "prepare": {
+      "kind": "batch",
+      "path": "script/install-env.bat",
+      "execution": "managed"
+    },
+    "menu": {
+      "kind": "batch",
+      "path": "productivity-RINGS.bat",
+      "execution": "terminal"
+    }
+  },
+  "web": {
+    "port": 18759,
+    "openPath": "/",
+    "healthPath": "/health"
+  }
+}
