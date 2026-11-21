@@ -1,0 +1,15 @@
+[package]
+name = "rings-desktop"
+version = "1.0.0"
+description = "RINGS desktop application"
+authors = ["RINGS"]
+edition = "2021"
+rust-version = "1.90"
+build = "build.rs"
+
+[build-dependencies]
+tauri-build = "2.7.6"
+
+[dependencies]
+tauri = "2.12.7"
+tauri-plugin-sql = { version = "2.6.0", features = ["sqlite"] }

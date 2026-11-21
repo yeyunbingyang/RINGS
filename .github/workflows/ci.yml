@@ -1,0 +1,80 @@
+name: RINGS Web Checks
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.12.0"
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Type check
+        run: pnpm typecheck
+
+      - name: Unit and IndexedDB integration tests
+        run: pnpm test
+
+      - name: Build Web
+        run: pnpm build:web
+
+  desktop:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.12.0"
+
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Verify Tauri CLI
+        run: pnpm --filter @rings/desktop exec tauri --version
+
+      - name: Build Desktop application (without installer bundling)
+        run: pnpm --filter @rings/desktop exec tauri build --no-bundle --ci
+
+      - name: Upload generated dependency lockfiles
+        uses: actions/upload-artifact@v4
+        with:
+          name: rings-dependency-lockfiles
+          path: |
+            pnpm-lock.yaml
+            apps/desktop/src-tauri/Cargo.lock
+          if-no-files-found: error

@@ -54,3 +54,21 @@ Review / Statistics、Collection / Relation、备份导出增强、批量调度�
 ## 阶段 1 页面设计增量（2026-11-18）
 
 规划工作区 v0.8 已完成首轮 HTML 原型和页面规格（prototype_only），覆盖 Direction / Goal / Stage / Task 关联。用户评审通过后，进入阶段 2 技术方案冻结；当前不把原型交互标记为正式代码完成。
+
+
+## 阶段 2 技术方案冻结（2026-11-20）
+
+状态：已完成架构决策并建立正式源码骨架。
+
+- 首发平台：Desktop + Web 同时开发。
+- 共用前端：React / TypeScript / Vite SPA。
+- Desktop：Tauri 2 + SQLite。
+- Web：IndexedDB。
+- 共享 Domain / Application / Repository 契约。
+- v1.0 不做自动云同步，跨端数据交换后续通过显式导入 / 导出。
+
+技术决策与代码状态见 `docs/03-engineering/architecture.md`、`adr-log.md` 和 `docs/04-delivery/progress.md`。
+
+## 阶段 3 核心纵向闭环（已启动）
+
+当前已建立 Task / Plan / WorkSession 的双端 Repository 骨架和首个 React 交互切片。下一步先完成依赖安装、CI 构建、Web / Desktop 本地启动与数据库持久化验证，再扩展 Task 编辑、未安排任务池和完整调度时间线。

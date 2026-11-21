@@ -1,3 +1,18 @@
+# Node / pnpm
+node_modules/
+**/node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+**/dist/
+target/
+**/target/
+.vite/
+**/.vite/
+.vitest/
+**/.vitest/
+
 # 本机运行时数据与缓存（不纳入版本库）
 data/
 .runtime/
@@ -5,9 +20,17 @@ data/
 *.sqlite-shm
 *.sqlite-wal
 
-# 日志与临时文件
+# Runtime and temporary files
 *.log
 *.tmp
 *.bak
+
+# Local environment and OS files
+.env
+.env.*
+!.env.example
 .DS_Store
 Thumbs.db
+
+# Tauri generated files
+apps/desktop/src-tauri/gen/

@@ -78,3 +78,31 @@ DEV-UI-01（首页线框和 HTML 原型）已完成首轮原型交付：RINGS �
 3. 设计 Goal / Stage 和 Task 详情。
 4. 冻结正式技术架构、数据模型和持久化方案。
 5. 进入正式应用 Shell、数据层和核心业务开发。
+
+
+## 7. v1.0 双端正式骨架状态（2026-11-20）
+
+| 工作包 | 当前状态 | 说明 |
+|---|---|---|
+| DEV-ARCH-01 技术冻结 | 已完成（文档决策） | 双端范围、技术栈、存储边界和 ADR 已冻结 |
+| DEV-BASE-01 应用基础 | 骨架已提交，待构建验证 | pnpm workspace、React SPA、Tauri shell、双端 Repository |
+| DEV-03-01 Task 核心 | 首个切片已建立，未验收 | 创建、完成、软删除、恢复；Task 编辑和 Subtask 未完成 |
+| DEV-04-01 Plan 核心 | 首个切片已建立，未验收 | 创建、取消、冲突提示；完整时间线未完成 |
+| DEV-03-02 WorkSession | 首个切片已建立，未验收 | 开始、结束、实际秒数；计时恢复和完整历史仍待验收 |
+| DEV-QA-01 质量发布 | 未开始 | 等依赖安装和双端构建通过后建立自动化测试 |
+
+### 当前开发命令
+
+```bash
+pnpm install
+pnpm dev:web
+pnpm dev:desktop
+pnpm build:web
+pnpm build:desktop
+```
+
+首次安装会生成 `pnpm-lock.yaml`，应在本地安装成功后提交。Desktop 需要 Rust 1.90+ 和目标操作系统构建依赖。
+
+### Definition of Done 提醒
+
+当前代码只标记为 skeleton / foundation，不标记为 verified 或 released。只有 TypeScript 检查、Web 构建、Desktop 编译、双端持久化、重启恢复和端到端用例实际通过后，才提升为 verified。

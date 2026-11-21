@@ -84,3 +84,41 @@ HTML 原型已提交至 [`prototypes/planning-workspace-v0.8/index.html`](protot
 - 验收记录：[docs/05-quality/planning-workspace-v0.9-acceptance.md](docs/05-quality/planning-workspace-v0.9-acceptance.md)
 
 状态：prototype_only。原型使用浏览器 localStorage，不代表正式 API / 数据库已实现。
+
+
+## RINGS v1.0 正式应用骨架（Desktop + Web）
+
+v1.0 采用双端同时开发：Web 与 Desktop 共用 `apps/client` React SPA、Domain 和 Application；Desktop 由 Tauri 2 加载同一前端。
+
+### 本地启动
+
+环境要求：Node.js 22.12+、pnpm 10+；运行 Desktop 还需要 Rust 1.90+ 和 Tauri 对应系统构建依赖。
+
+```bash
+pnpm install
+pnpm dev:web
+```
+
+桌面端：
+
+```bash
+pnpm dev:desktop
+```
+
+构建：
+
+```bash
+pnpm build:web
+pnpm build:desktop
+```
+
+### 双端数据说明
+
+- Web：IndexedDB。
+- Desktop：SQLite。
+- 两端当前分别本地保存，**没有云同步或自动跨端数据同步**。
+- 首次 `pnpm install` 会生成 pnpm-lock.yaml；依赖锁文件需要随安装验证结果提交。
+
+### 当前正式代码范围
+
+当前 foundation 切片打通 Task 创建 / 完成 / 软删除 / 恢复、Plan 创建 / 取消 / 冲突提示、WorkSession 开始 / 结束和双端本地 Repository Adapter。其他页面入口仍在后续接入计划中，不能把原型能力视为正式代码完成。

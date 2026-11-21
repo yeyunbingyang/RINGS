@@ -1,0 +1,15 @@
+{
+  "name": "rings",
+  "version": "1.0.0",
+  "private": true,
+  "engines": { "node": ">=22.12.0" },
+  "scripts": {
+    "dev:web": "pnpm --filter @rings/client dev",
+    "build:web": "pnpm --filter @rings/client build",
+    "dev:desktop": "pnpm --filter @rings/desktop dev",
+    "build:desktop": "pnpm --filter @rings/desktop build",
+    "typecheck": "pnpm --filter @rings/client typecheck",
+    "test": "pnpm --filter @rings/client test",
+    "verify": "pnpm typecheck && pnpm test && pnpm build:web"
+  }
+}
