@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RINGS · 搜索与选择优化记录</title>
+<style>
+  * { box-sizing: border-box }
+  body { margin: 0 auto; padding: 28px 24px; max-width: 1190px; background: #f1f4ef; color: #26362e; font: 16px/1.65 system-ui, "Microsoft YaHei", sans-serif }
+  a { color: #28583e }
+  h1 { line-height: 1.25 }
+  h2 { margin: 0; font-size: 21px }
+  section { margin: 16px 0; padding: 20px 24px; border: 1px solid #dce4db; border-radius: 14px; background: #fff }
+  p { margin: 8px 0 0 }
+  .selected { border-color: #61866b }
+  img { display: block; margin-top: 14px; width: 100%; height: auto; border-radius: 8px }
+</style>
+</head>
+<body>
+<main>
+<a href="../review.html#R08">返回审查打卡页 · R08</a>
+<h1>RINGS 搜索与选择优化记录</h1>
+<section aria-labelledby="problem">
+  <h2 id="problem">用户反馈与原因</h2>
+  <p>规划页局部搜索框有内外两层边框，和顶部搜索框样式不一致。局部搜索框的外层已经有圆角边框，内层输入框仍保留浏览器默认边框。统一图标、输入区和焦点样式，聚焦时高亮外框，保留各自的搜索范围。</p>
+  <p>下拉选择多一次展开操作。用户希望按实际选项数量切换，少量选项直接选，达到阈值后使用下拉，且所有下拉都能搜索。</p>
+</section>
+<section class="selected" aria-labelledby="option2">
+  <h2 id="option2">方案 2 · 双行直列（已选定）</h2>
+  <p>6 项以内直列，名称稍长时可排两行。第 7 项起使用可搜索下拉。规划页的 3 个排序选项可直接平铺。这一方案兼顾关联目标等较长名称的可读性和工具栏高度。</p>
+  <img src="rings-choice-2.png" alt="方案 2：少量选项双行直列，较多选项可用下拉搜索" width="1180" height="684">
+</section>
+<section aria-labelledby="option1">
+  <h2 id="option1">方案 1 · 紧凑工具栏</h2>
+  <p>4 项以内单行直列，第 5 项起使用可搜索下拉。适合优先级和短名称状态等选项。</p>
+  <img src="rings-choice-1.png" alt="方案 1：少量短名称选项单行直列" width="1180" height="684" loading="lazy">
+</section>
+<section aria-labelledby="option3">
+  <h2 id="option3">方案 3 · 分组单选列表</h2>
+  <p>8 项以内按已有类别分组展示，第 9 项起使用可搜索下拉。适合需要按类别浏览的表单，占用的空间更多。</p>
+  <img src="rings-choice-3.png" alt="方案 3：八个目标按类别分两组展示" width="1180" height="684" loading="lazy">
+</section>
+<p>效果图使用示例数据。此页记录设计决策，实际验收结果在审查打卡页填写。</p>
+</main>
+</body>
+</html>

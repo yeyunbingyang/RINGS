@@ -5,7 +5,6 @@ import { DatabaseSync } from 'node:sqlite';
 
 const route = '/api/workspace';
 const importRecoveryRoute = '/api/workspace/import-backup';
-const limit = 32 * 1024 * 1024;
 const keys = new Set([
   'rings-data-v171', 'rings-review-v17', 'rings-event-log-v171',
   'rings-nav-config-v08', 'rings-app-preferences-v10', 'rings-planning-v08', 'rings-review-note-v10',
@@ -104,15 +103,7 @@ function validRequest({ revision, data, replace } = {}) {
 
 async function readJson(request) {
   const chunks = [];
-  let size = 0;
-  for await (const chunk of request.iterator({ destroyOnReturn: false })) {
-    size += chunk.length;
-    if (size > limit) {
-      request.resume();
-      throw new RangeError('工作台超过 32 MB，无法保存。请先导出备份并移除不需要的大附件。');
-    }
-    chunks.push(chunk);
-  }
+  for await (const chunk of request.iterator({ destroyOnReturn: false })) chunks.push(chunk);
   return JSON.parse(Buffer.concat(chunks).toString('utf8'));
 }
 
@@ -134,8 +125,8 @@ export function workspaceHandler(store) {
       if (request.headers['content-type']?.split(';')[0] !== 'application/json') return reply(415, { error: '需要 JSON 请求' });
       try {
         payload = await readJson(request);
-      } catch (error) {
-        return reply(error instanceof RangeError ? 413 : 400, { error: error instanceof RangeError ? error.message : 'JSON 格式无效' });
+      } catch {
+        return reply(400, { error: 'JSON 格式无效' });
       }
       if (!isRecord(payload) || !validRequest(payload)) return reply(400, { error: '工作台数据格式无效' });
     } else if (request.method !== 'GET') {

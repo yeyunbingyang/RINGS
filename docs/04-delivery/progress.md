@@ -3,6 +3,12 @@
 > 截止日期：2026-11-20  
 > 状态来源：当前可核验的文档与原型文件。不把原型交互当作正式开发完成。
 
+## 2026-11-22 工作台变更
+
+- 新增「回顾与管理 → 开发地图」，已采用方案 3，在变更清单中筛选和选择记录，在详情中查看前后对照、反馈返工和验收经过。
+- 规划和执行管理页的统计卡片移至页头。
+- 「复盘」与「统计」拆为「工作区」内的独立页面，分别设置周期，变更记入开发地图。
+
 ## 1. 总体状态
 
 | 工作流 | 当前状态 | 说明 |
@@ -156,7 +162,7 @@ v0.2 文件：prototypes/execution-candidate-v0.2/index.html。
 | Task Work Context | 原型已完成（prototype_only） | 支持 AI 会话、本地文件 / 文件夹、GitHub Repo、网页等引用 |
 | Task 专注页 | 原型已完成（prototype_only） | 专注计时、Thought 记录、结束时生成 WorkSession 摘要 |
 | Chromium 冒烟验收 | 已通过（prototype_only） | 文件选择、上下文添加、专注计时和记录、390px 窄屏 |
-| 正式附件存储 | 未实现 | 当前演示限制 1MB / 文件、3MB / Candidate，使用 localStorage |
+| 本机附件存储 | 已实现 | 文件流式写入 `data/attachments/`，大小不设上限；工作台 JSON 仅保存引用；浏览器原型模式仍受 localStorage 配额限制 |
 
 v0.3.1 会话附件：`RINGS-v0.3.1-execution-context.html` 与 `RINGS-v0.3.1-delivery.zip`。文件拖放 / 剪贴板在目标桌面浏览器仍需用户环境复测。
 

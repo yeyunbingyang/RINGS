@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { openWorkspaceStore, workspaceHandler } from './workspace-store.mjs';
+import { attachmentHandler } from './attachment-store.mjs';
 
 const [host, portArgument] = process.argv.slice(2);
 const port = Number(portArgument);
@@ -11,9 +12,12 @@ if (host !== '127.0.0.1' || !Number.isInteger(port) || port < 1 || port > 65535)
 const origin = `http://${host}:${port}`;
 const store = openWorkspaceStore();
 const workspaceApi = workspaceHandler(store);
+const attachmentApi = attachmentHandler();
 const prototype = readFileSync(new URL('../prototypes/workspace-recovery/index.html', import.meta.url), 'utf8');
 const workspaceData = readFileSync(new URL('../prototypes/workspace-recovery/workspace-data.js', import.meta.url), 'utf8');
 const workspaceStorage = readFileSync(new URL('../prototypes/workspace-recovery/workspace-storage.js', import.meta.url), 'utf8');
+const workspaceScrollScript = readFileSync(new URL('../prototypes/workspace-recovery/workspace-scroll.js', import.meta.url), 'utf8');
+const workspaceScrollStyle = readFileSync(new URL('../prototypes/workspace-recovery/workspace-scroll.css', import.meta.url), 'utf8');
 const gantt = readFileSync(new URL('../prototypes/workspace-recovery/gantt.html', import.meta.url), 'utf8');
 const page = prototype.replace('</aside>', `
 <div style="padding: 0 12px 12px">
@@ -57,6 +61,8 @@ const server = createServer((request, response) => {
 
   if (request.headers.host !== `${host}:${port}`) {
     send(response, 403, 'text/plain', '无效的访问地址');
+  } else if (pathname.startsWith('/api/attachments/')) {
+    void attachmentApi(request, response, () => send(response, 404, 'text/plain', '附件接口不存在'));
   } else if (pathname === '/api/workspace' || pathname === '/api/workspace/import-backup') {
     void workspaceApi(request, response, () => {});
   } else if (request.method === 'GET' && pathname === '/') {
@@ -67,6 +73,10 @@ const server = createServer((request, response) => {
     send(response, 200, 'text/javascript', workspaceData);
   } else if (request.method === 'GET' && pathname === '/workspace-storage.js') {
     send(response, 200, 'text/javascript', workspaceStorage);
+  } else if (request.method === 'GET' && pathname === '/workspace-scroll.js') {
+    send(response, 200, 'text/javascript', workspaceScrollScript);
+  } else if (request.method === 'GET' && pathname === '/workspace-scroll.css') {
+    send(response, 200, 'text/css', workspaceScrollStyle);
   } else if (request.method === 'GET' && pathname === '/gantt.html') {
     send(response, 200, 'text/html', gantt);
   } else if (request.method === 'POST' && pathname === '/shutdown') {

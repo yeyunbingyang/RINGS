@@ -93,8 +93,14 @@
 
   function update(key, value) {
     if (browserOnly) {
-      if (value === null) localStorage.removeItem(key);
-      else localStorage.setItem(key, value);
+      try {
+        if (value === null) localStorage.removeItem(key);
+        else localStorage.setItem(key, value);
+      } catch (error) {
+        throw new Error(error?.name === 'QuotaExceededError'
+          ? '浏览器存储空间不足。请改用本机服务保存大附件。'
+          : `无法写入浏览器存储：${error.message}`);
+      }
       return;
     }
     if (importing) return;
@@ -193,6 +199,47 @@
     }
   }
 
+  async function uploadAttachment(id, file) {
+    if (browserOnly) throw new Error('浏览器原型模式无法保存大附件，请使用本机服务。');
+    let response;
+    try {
+      response = await fetch(`/api/attachments/${encodeURIComponent(id)}`, {
+        method: 'PUT',
+        headers: { 'X-Rings-Workspace': '1', 'Content-Type': file.type || 'application/octet-stream' },
+        body: file,
+      });
+    } catch {
+      throw new Error('无法上传附件，请检查本机服务连接。');
+    }
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(result.error || '附件保存失败。');
+    return result;
+  }
+
+  function attachmentUrl(id) {
+    return `/api/attachments/${encodeURIComponent(id)}`;
+  }
+
+  async function readAttachment(id) {
+    let response;
+    try {
+      response = await fetch(attachmentUrl(id), { headers: { 'X-Rings-Workspace': '1' } });
+    } catch {
+      throw new Error('无法连接本机附件服务。');
+    }
+    if (!response.ok) throw new Error(response.status === 404 ? '附件不存在。' : '无法读取附件。');
+    return response.blob();
+  }
+
+  async function deleteAttachment(id) {
+    if (browserOnly) return;
+    try {
+      await fetch(`/api/attachments/${encodeURIComponent(id)}`, {
+        method: 'DELETE', headers: { 'X-Rings-Workspace': '1' },
+      });
+    } catch {}
+  }
+
   window.addEventListener('beforeunload', event => {
     if (dirty || inFlight || importing) {
       event.preventDefault();
@@ -203,6 +250,7 @@
     open, get: key => browserOnly ? readBrowser(key) : records.get(key) ?? null,
     set: update, remove: key => update(key, null), replace, flush, browserOnly,
     importBackup: async () => (await request('GET', undefined, '/api/workspace/import-backup')).data,
+    uploadAttachment, readAttachment, deleteAttachment,
     size: () => new TextEncoder().encode(JSON.stringify(snapshot())).length,
     toast(message, notify) {
       if (browserOnly || (!dirty && !inFlight)) return notify(message);

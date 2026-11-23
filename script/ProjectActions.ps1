@@ -1,4 +1,4 @@
-﻿$projectRoot = Split-Path -Parent $PSScriptRoot
+$projectRoot = Split-Path -Parent $PSScriptRoot
 
 function Test-ProjectEnvironment {
     $node = Get-Command node.exe -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
@@ -17,7 +17,9 @@ function Test-ProjectEnvironment {
         'prototypes/workspace-recovery/index.html',
         'prototypes/workspace-recovery/gantt.html',
         'prototypes/workspace-recovery/workspace-data.js',
-        'prototypes/workspace-recovery/workspace-storage.js'
+        'prototypes/workspace-recovery/workspace-storage.js',
+        'prototypes/workspace-recovery/workspace-scroll.js',
+        'prototypes/workspace-recovery/workspace-scroll.css'
     )) {
         if (-not (Test-Path -LiteralPath (Join-Path $projectRoot $file) -PathType Leaf)) {
             Write-Host "[检查] 缺少随插件交付的文件：$file"

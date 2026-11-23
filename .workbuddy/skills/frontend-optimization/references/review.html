@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>前端优化 · 审查打卡</title>
+<style>
+:root{color-scheme:light;--ink:#213934;--muted:#526962;--brand:#285b4b;--line:#d7e2dd;--paper:#fff;--bg:#eff4f0;font:15px/1.5 "Segoe UI","Microsoft YaHei",sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink)}
+button,select,input,textarea{font:inherit;color:inherit}
+button,select,input,textarea{border:1px solid var(--line);border-radius:7px;padding:7px 10px;background:#fff}
+button{cursor:pointer}
+button:hover{border-color:#83ae9d}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+h1,h2,h3,p{margin:0}
+h1{font-size:32px;letter-spacing:-.02em}
+h2{font-size:18px}
+h3{font-size:16px}
+main{max-width:1120px;margin:auto;padding:25px 24px 45px}
+.heading{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:17px}
+.muted{color:var(--muted);font-size:13px}
+.heading p{margin-top:3px}
+.toolbar,.row,.tabs,.metrics{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.primary{background:var(--brand);border-color:var(--brand);color:white}
+.panel{border:1px solid var(--line);border-radius:12px;background:var(--paper);padding:13px 15px;margin-bottom:11px}
+.metrics{gap:10px;margin-top:8px}
+.metric{flex:1;min-width:122px;padding:5px 9px;border-left:3px solid #b7d3c7}
+.metric b{font-size:21px;margin-right:5px}
+progress{width:100%;height:9px;margin:10px 0 0;accent-color:var(--brand)}
+.quick h2{margin-bottom:6px}
+.quick input{flex:1;min-width:240px;font-family:inherit}
+.tabs{margin:17px 0 10px}
+.tabs button[aria-pressed="true"]{background:#e0eee6;border-color:#9abdaf;color:#234e41;font-weight:650}
+.rule{display:grid;grid-template-columns:minmax(0,1fr) minmax(205px,.35fr);gap:12px}
+.rule small{font-size:12px;color:var(--brand);font-weight:700}
+.rule h3{margin:3px 0 5px}
+.rule p{margin-bottom:4px}
+.rule label{display:block;color:var(--muted);font-size:13px;margin-top:6px}
+.rule select,.rule textarea{width:100%}
+.rule textarea{resize:vertical;min-height:60px;font:inherit;font-size:13px}
+.rule[data-status="通过"]{border-left:4px solid #4d9a77}
+.rule[data-status="待优化"]{border-left:4px solid #bd884b}
+.code{font-family:Consolas,monospace;white-space:nowrap}
+#feedback{min-height:1.5em;color:var(--brand);font-size:13px;margin-top:4px}
+#feedback[data-error="true"]{color:#a2312d}
+dialog{border:1px solid var(--line);border-radius:12px;padding:17px;width:min(560px,92vw)}
+dialog::backdrop{background:#21393455}
+dialog input,dialog textarea{display:block;width:100%;margin:6px 0 10px}
+dialog textarea{min-height:190px}
+dialog .row{justify-content:flex-end}
+@media(max-width:700px){main{padding:14px}.rule{grid-template-columns:minmax(0,1fr)}}
+</style>
+</head>
+<body>
+<main>
+  <header class="heading">
+    <div><h1>前端审查打卡</h1><p class="muted">用已确认的规则逐项检查界面，记录结果和证据。</p></div>
+    <div class="toolbar">
+      <label for="review">审查记录</label><select id="review"></select>
+      <button id="newReview" type="button">＋ 新建</button>
+      <button id="copyReview" type="button">复制结果</button>
+    </div>
+  </header>
+  <section class="panel" aria-label="审查进度">
+    <h2 id="reviewTitle"></h2>
+    <div class="metrics" id="metrics"></div>
+    <progress id="progress" aria-label="已审查规则数量"></progress>
+  </section>
+  <section class="panel quick" aria-labelledby="quickTitle">
+    <h2 id="quickTitle">批量打卡</h2>
+    <form id="quickForm" class="row">
+      <input id="quickInput" aria-label="打卡指令" placeholder="R01 R02 通过；R06 待优化：晚间时间未显示" required>
+      <button type="submit" class="primary">应用</button>
+    </form>
+    <div class="muted" id="feedback" role="status" aria-live="polite">支持待查、通过、待优化和不适用。用分号分隔多组。</div>
+  </section>
+  <nav id="categories" class="tabs" aria-label="按规则分类筛选"></nav>
+  <section id="rules" aria-label="规则清单"></section>
+</main>
+<dialog id="nameDialog">
+  <form id="nameForm">
+    <h2>新建审查记录</h2>
+    <label for="reviewName">项目或页面名称</label>
+    <input id="reviewName" required maxlength="80" placeholder="例如 RINGS 调度日视图">
+    <div class="row"><button type="button" id="cancelName">取消</button><button class="primary" type="submit">创建</button></div>
+  </form>
+</dialog>
+<dialog id="copyDialog">
+  <h2>审查结果</h2>
+  <textarea id="copyText" aria-label="审查结果文本" readonly></textarea>
+  <div class="row"><button type="button" id="closeCopy">关闭</button></div>
+</dialog>
+
+<script type="application/json" id="rule-data">
+[
+  {"id":"R01","category":"设计与可读性","title":"以确认图为验收基准","scope":"有用户确认的截图、原型或效果图","rule":"用实际运行页面与确认图对照，核对关键布局和操作。","check":"在约定的窗口尺寸和状态下截图，验证主要区域、入口和操作位置。"},
+  {"id":"R02","category":"设计与可读性","title":"字号分层，保证桌面可读性","scope":"桌面正文、导航、控件和辅助标签","rule":"按信息层次调整字号。RINGS 的 15 px 正文、14 px 主要控件和 12 px 辅助标签可作为参考。","check":"用目标尺寸检查正文、长标题、标签、表单和密集卡片。"},
+  {"id":"R03","category":"数据与筛选","title":"摘要和状态反映真实记录","scope":"摘要、计数、时间、进度和状态提示","rule":"显示实际数据，并在相关记录变化后更新。没有记录时给出明确空状态。","check":"分别查看无记录、有记录以及发生数据变更后的界面。"},
+  {"id":"R04","category":"数据与筛选","title":"分类、标签和状态各司其职","scope":"有捕捉、详情及列表筛选的模块","rule":"捕捉、详情和筛选共用分类定义。标签可独立多选，状态计数与当前筛选范围一致。","check":"新增一条记录并填写分类与标签，在详情核对后交叉筛选，比较结果和计数。"},
+  {"id":"R05","category":"表单与调度","title":"相关字段集中，关键操作可见","scope":"复杂桌面表单和带长内容的弹窗","rule":"按信息关系分组，例如把备注、清单、资料归入上下文。空间充足时可分栏，滚动正文时保留保存入口。","check":"检查空表单、长备注、长清单和长文件名，验证滚动时保存按钮可见。"},
+  {"id":"R06","category":"表单与调度","title":"时间轴显示与操作位置一致","scope":"日程、日历时间轴和拖放排期","rule":"日视图覆盖全天，当前时间标记只在当天显示，刻度、卡片、点击和拖放共用时间换算。","check":"核对当前时间、凌晨、深夜、跨午夜，以及点击预填和拖放保存的时间。"},
+  {"id":"R07","category":"运行验收","title":"用截图和真实操作共同验收","scope":"所有已实施的前端优化","rule":"截图核对布局，同时走通实际操作。涉及写入时，重新读取已保存的内容。","check":"按场景执行新增、保存、详情读取、组合筛选或拖放，记录结果与证据。"},
+  {"id":"R08","category":"数据与筛选","title":"少量选项直列，超过阈值时使用可搜索下拉","scope":"桌面端排序、状态、分类和关联记录等选择器","rule":"按实际可选项数切换。RINGS 桌面端采用方案 2：6 项以内直接展示，按需要排成一行或两行；7 项起使用可搜索下拉。展开时可以立即输入，支持方向键、回车和 Esc，数量变化后保留仍有效的选中项。","check":"分别用 3、6、7 项检查一次点击选中、切换边界和选中值保留，再验证搜索有结果、无结果和键盘操作。","caseUrl":"rings-search-selection/index.html"}
+]
+</script>
+<script>
+const rules = JSON.parse(document.querySelector('#rule-data').textContent);
+const allowedStatuses = ['待查','通过','待优化','不适用'];
+const storeKey = 'frontend-optimization-reviews-v1';
+const $ = selector => document.querySelector(selector);
+let state = { reviews: [], activeId: '' };
+let category = '全部';
+let storageAvailable = true;
+
+function newId() {
+  return globalThis.crypto?.randomUUID?.() ?? String(Date.now()) + '-' + Math.random().toString(36).slice(2);
+}
+
+function load() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(storeKey));
+    if(saved && Array.isArray(saved.reviews)) state = saved;
+  } catch { storageAvailable = false; }
+  if(!state.reviews.length) state.reviews.push({id:newId(), name:'未命名审查', checks:{}});
+  if(!state.reviews.some(review=>review.id===state.activeId)) state.activeId=state.reviews[0].id;
+}
+
+function tell(message,error=false) {
+  $('#feedback').textContent=message;
+  $('#feedback').dataset.error=String(error);
+}
+
+function save() {
+  try { localStorage.setItem(storeKey,JSON.stringify(state)); }
+  catch {
+    storageAvailable=false;
+    tell('当前浏览器无法保存进度。可用「复制结果」保留本次记录。',true);
+  }
+}
+
+function current() {
+  return state.reviews.find(review=>review.id===state.activeId);
+}
+
+function statusOf(rule) {
+  return current().checks[rule.id]?.status || '待查';
+}
+
+function element(tag, text, className) {
+  const node=document.createElement(tag);
+  if(text) node.textContent=text;
+  if(className) node.className=className;
+  return node;
+}
+
+function renderHeader() {
+  const review=current();
+  const select=$('#review');
+  select.replaceChildren(...state.reviews.map(item=>new Option(item.name,item.id)));
+  select.value=review.id;
+  $('#reviewTitle').textContent=review.name;
+  const totals=Object.fromEntries(allowedStatuses.map(status=>[status,0]));
+  for(const rule of rules) totals[statusOf(rule)]++;
+  $('#metrics').replaceChildren(...allowedStatuses.map(status=>{
+    const metric=element('div',null,'metric');
+    metric.append(element('b',String(totals[status])),element('span',status,'muted'));
+    return metric;
+  }));
+  const progress=$('#progress');
+  progress.max=rules.length;
+  progress.value=rules.length-totals['待查'];
+  progress.setAttribute('aria-valuetext','已审查 '+progress.value+' / '+rules.length+' 条');
+}
+
+function renderCards() {
+  const categories=['全部',...new Set(rules.map(rule=>rule.category))];
+  $('#categories').replaceChildren(...categories.map(item=>{
+    const tab=element('button',item);
+    tab.type='button';
+    tab.setAttribute('aria-pressed',String(item===category));
+    tab.onclick=()=>{category=item;renderCards();};
+    return tab;
+  }));
+  $('#rules').replaceChildren(...rules.filter(rule=>category==='全部'||rule.category===category).map(rule=>{
+    const card=element('article',null,'panel rule');
+    card.id=rule.id;
+    card.dataset.status=statusOf(rule);
+    const details=element('div');
+    details.append(element('small',rule.id+' · '+rule.category),element('h3',rule.title),
+      element('p','适用范围 · '+rule.scope,'muted'),element('p',rule.rule),element('p','验证 · '+rule.check,'muted'));
+    if(rule.caseUrl){
+      const example=element('a','查看方案与确认记录');
+      example.href=rule.caseUrl;
+      details.append(example);
+    }
+    const controls=element('div');
+    const pick=element('select');
+    pick.id=rule.id+'-status';
+    const statusLabel=element('label','审查结果');
+    statusLabel.htmlFor=pick.id;
+    pick.replaceChildren(...allowedStatuses.map(status=>new Option(status,status)));
+    pick.value=statusOf(rule);
+    const note=element('textarea');
+    note.id=rule.id+'-evidence';
+    note.placeholder='截图路径、复现步骤或简要说明';
+    note.value=current().checks[rule.id]?.evidence||'';
+    const noteLabel=element('label','证据或备注');
+    noteLabel.htmlFor=note.id;
+    function update(){
+      current().checks[rule.id]={status:pick.value,evidence:note.value};
+      card.dataset.status=pick.value;
+      save();
+    }
+    pick.onchange=()=>{update();renderHeader();};
+    note.oninput=update;
+    controls.append(statusLabel,pick,noteLabel,note);
+    card.append(details,controls);
+    return card;
+  }));
+}
+
+function applyQuick(text) {
+  const changes=[];
+  for(const group of text.split(/[;\uFF1B\n]+/).map(value=>value.trim()).filter(Boolean)){
+    const match=group.match(/^((?:R\d{2}[\s,，、]*)+)(待查|通过|待优化|不适用)(?:\s*[：:]\s*(.+))?$/i);
+    if(!match) throw new Error('无法识别「'+group+'」。示例：R01 R03 通过');
+    for(const id of match[1].toUpperCase().match(/R\d{2}/g)){
+      if(!rules.some(rule=>rule.id===id)) throw new Error('没有编号 '+id+'，进度未更改。');
+      changes.push({id,status:match[2],evidence:match[3]});
+    }
+  }
+  if(!changes.length) throw new Error('请输入编号和审查状态。');
+  for(const {id,status,evidence} of changes){
+    current().checks[id]={status,evidence:evidence??current().checks[id]?.evidence??''};
+  }
+  save();
+  renderHeader();
+  renderCards();
+  if(storageAvailable) tell('已更新 '+new Set(changes.map(item=>item.id)).size+' 条规则。');
+}
+
+$('#quickForm').onsubmit=event=>{
+  event.preventDefault();
+  try { applyQuick($('#quickInput').value);$('#quickInput').value=''; }
+  catch(error) {tell(error.message,true);}
+};
+$('#review').onchange=event=>{
+  state.activeId=event.target.value;
+  category='全部';
+  save();
+  renderHeader();
+  renderCards();
+  if(storageAvailable) tell('已切换到「'+current().name+'」。');
+};
+$('#newReview').onclick=()=>{$('#nameDialog').showModal();$('#reviewName').focus();};
+$('#cancelName').onclick=()=>$('#nameDialog').close();
+$('#nameForm').onsubmit=event=>{
+  event.preventDefault();
+  const input=$('#reviewName');
+  const name=input.value.trim();
+  if(!name){input.focus();return;}
+  const review={id:newId(),name,checks:{}};
+  state.reviews.push(review);
+  state.activeId=review.id;
+  category='全部';
+  input.value='';
+  $('#nameDialog').close();
+  save();
+  renderHeader();
+  renderCards();
+  if(storageAvailable) tell('已创建审查记录。');
+};
+$('#copyReview').onclick=async()=>{
+  const review=current();
+  const lines=rules.map(rule=>{
+    const evidence=review.checks[rule.id]?.evidence?.trim();
+    return '- '+rule.id+' '+rule.title+' · '+statusOf(rule)+(evidence?' · '+evidence:'');
+  });
+  const text=['# '+review.name,'',...lines].join('\n');
+  try{await navigator.clipboard.writeText(text);tell('审查结果已复制。');}
+  catch{$('#copyText').value=text;$('#copyDialog').showModal();$('#copyText').select();}
+};
+$('#closeCopy').onclick=()=>$('#copyDialog').close();
+load();
+save();
+renderHeader();
+renderCards();
+</script>
+</body>
+</html>

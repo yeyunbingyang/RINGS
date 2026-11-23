@@ -10,7 +10,7 @@ RINGS 将信息捕捉、方向与目标规划、任务执行、可视化时间�
 
 首次打开时可建立空白工作台。如果当前浏览器的同一地址存在原型记录，启动界面也会提供导入选项。其他地址的原型记录可先从旧工作台导出 JSON，再在「设置」导入。
 
-本机服务、ToolOrbit 托管入口和开发预览默认共用插件的 `data/rings.sqlite`。更换同一台电脑上的浏览器或端口会读取同一份工作台。设置可导出完整 JSON，导入前需确认并保留最近一次导入前副本。长期备份可导出 JSON，或在关闭全部 RINGS 实例后备份数据目录。插件启动日志和本机运行实例日志沿用现有入口。
+本机服务、ToolOrbit 托管入口和开发预览默认共用插件的 `data/rings.sqlite`；附件文件单独存放在 `data/attachments/`，大小不设上限。更换同一台电脑上的浏览器或端口会读取同一份工作台。设置可导出完整 JSON，导入前需确认并保留最近一次导入前副本。由于 JSON 备份只包含附件引用，长期备份需同时备份 `data/attachments/`，或在关闭全部 RINGS 实例后备份整个数据目录。插件启动日志和本机运行实例日志沿用现有入口。
 
 在 ToolOrbit 根目录运行 `node node_modules/vite/bin/vite.js --config plugins/bundled/productivity-RINGS/script/preview.config.mjs`，在 18761 查看热更新预览。测试可通过 `RINGS_DATA_DIR` 指定独立运行数据目录。
 

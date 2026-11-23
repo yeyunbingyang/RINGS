@@ -12,7 +12,7 @@ Candidate 详情提供列表式资料区，支持：
 - 支持打开 / 下载、上移、下移、移除。
 - 文件添加后与 Candidate 绑定，Candidate 转换时来源 Candidate 与附件关系继续保留。
 
-原型限制：单文件 1MB、单 Candidate 总计 3MB，Data URL 存入浏览器 localStorage。此方案只用于轻量交互演示。正式应用应使用 IndexedDB 或受控文件系统附件服务，存储元数据、内容哈希、来源、权限和校验状态；不能依赖 localStorage 保存大文件。
+本机服务模式下文件大小不设上限：文件以原始字节流式写入 `data/attachments/`，工作台 JSON 仅保存 `attachmentId`、名称、大小和 MIME 类型。纯浏览器（`file://`）原型模式仍使用 Data URL + localStorage，受浏览器配额限制；大附件请使用本机服务。正式应用若需跨设备同步，仍需在此受控附件服务之上补充内容哈希、来源、权限和校验状态。
 
 ## 2. Task Work Context
 

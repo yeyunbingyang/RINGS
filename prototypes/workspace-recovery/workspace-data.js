@@ -4,7 +4,6 @@
     'rings-data-v171', 'rings-review-v17', 'rings-event-log-v171',
     'rings-nav-config-v08', 'rings-app-preferences-v10', 'rings-planning-v08',
   ];
-  const MB = 1024 * 1024;
   const validRecord = value => value && typeof value === 'object' && !Array.isArray(value);
   const validId = value => typeof value === 'string' && /^[a-zA-Z0-9_.-]+$/.test(value) &&
     !['__proto__', 'constructor', 'prototype'].includes(value);
@@ -77,33 +76,48 @@
     }
   }
 
+  function readAsDataURL(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.addEventListener('load', () => resolve(reader.result));
+      reader.addEventListener('error', () => reject(reader.error));
+      reader.readAsDataURL(file);
+    });
+  }
+
   async function addFiles(files, draft, notify, owner) {
     pendingFiles.set(draft, (pendingFiles.get(draft) || 0) + 1);
     let accepted = 0;
     const rejected = [];
-    const exceedsLimit = file => file.size > MB ||
-      draft.reduce((total, item) => total + (item.data ? item.size : 0), 0) + file.size > 3 * MB;
     try {
       for (const file of Array.from(files || [])) {
-        if (exceedsLimit(file)) { rejected.push(file.name); continue; }
         try {
-          const data = await new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.addEventListener('load', () => resolve(reader.result));
-            reader.addEventListener('error', () => reject(reader.error));
-            reader.readAsDataURL(file);
-          });
-          if (exceedsLimit(file)) { rejected.push(file.name); continue; }
-          draft.push({ id: newCandidatePartId(), checklistItemId: owner(), kind: 'file', name: file.name, size: file.size, mime: file.type, data });
+          const item = {
+            id: newCandidatePartId(), checklistItemId: owner(), kind: 'file',
+            name: file.name, size: file.size, mime: file.type,
+          };
+          if (window.ringsStorage.browserOnly) {
+            item.data = await readAsDataURL(file);
+          } else {
+            // 用上传时的原始文件名作为附件 id，使 data/attachments/ 中保存的就是原件名。
+            // 服务端遇到同名文件会自动加 "-2" 等后缀并返回最终 id，这里据实写回引用，
+            // 保证 material 指向磁盘上的真实文件；展示用的 item.name 仍保留用户所选的原始名。
+            item.attachmentId = file.name;
+            const saved = await window.ringsStorage.uploadAttachment(item.attachmentId, file);
+            if (saved && typeof saved.id === 'string' && saved.id) item.attachmentId = saved.id;
+          }
+          draft.push(item);
           accepted++;
-        } catch {
-          rejected.push(file.name);
+        } catch (error) {
+          rejected.push(`${file.name}（${error.message}）`);
         }
       }
     } finally {
       pendingFiles.set(draft, pendingFiles.get(draft) - 1);
     }
-    if (accepted || rejected.length) notify(`已添加 ${accepted} 项${rejected.length ? `，${rejected.length} 项未添加。单文件限 1 MB，单事项合计限 3 MB。大文件可添加路径引用。` : ''}`);
+    if (accepted || rejected.length) {
+      notify(`已添加 ${accepted} 项${rejected.length ? `，${rejected.length} 项未添加：${rejected.join('；')}` : ''}`);
+    }
   }
 
   function newCandidatePartId() {
@@ -133,7 +147,7 @@
   }
 
   function materialGroup(item) {
-    if (item.data || (item.kind === 'file' && !item.url && !item.path)) return 'file';
+    if (item.data || item.attachmentId || (item.kind === 'file' && !item.url && !item.path)) return 'file';
     return item.role === 'target' ? 'target' : 'source';
   }
 
@@ -151,6 +165,109 @@
     const button = makeElement('button', className, label);
     button.type = 'button';
     button.onclick = callback;
+    return button;
+  }
+
+  const imageTypes = {
+    png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', webp: 'image/webp',
+    gif: 'image/gif', bmp: 'image/bmp', avif: 'image/avif', ico: 'image/x-icon',
+  };
+  const previewTypes = new Set([...Object.values(imageTypes), 'image/vnd.microsoft.icon']);
+  const thumbnails = new WeakMap();
+
+  function imageSource(item, name) {
+    if (typeof item.data === 'string') {
+      const data = item.data.match(/^data:([^;,]*);base64,[a-z0-9+/=]+$/i);
+      if (!data) return null;
+      if (previewTypes.has(data[1].toLowerCase())) return { data: item.data };
+      if (data[1] && data[1] !== 'application/octet-stream') return null;
+    } else if (!item.attachmentId || window.ringsStorage.browserOnly) return null;
+    const mime = String(item.mime || '').toLowerCase();
+    const extension = name.split('.').pop().toLowerCase();
+    const type = previewTypes.has(mime) ? mime
+      : !mime || mime === 'application/octet-stream' ? imageTypes[extension] : null;
+    if (typeof type !== 'string') return null;
+    return { data: item.data, type, id: item.attachmentId };
+  }
+
+  async function previewBlob(source) {
+    const blob = source.data
+      ? await (await fetch(source.data)).blob()
+      : await window.ringsStorage.readAttachment(source.id);
+    return source.type ? blob.slice(0, blob.size, source.type) : blob;
+  }
+
+  async function imageThumbnail(source) {
+    const bitmap = await createImageBitmap(await previewBlob(source));
+    try {
+      const canvas = document.createElement('canvas');
+      const scale = Math.min(1, 120 / Math.max(bitmap.width, bitmap.height));
+      canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+      canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+      canvas.getContext('2d').drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+      return canvas.toDataURL();
+    } finally {
+      bitmap.close();
+    }
+  }
+
+  async function openImagePreview(source, name, trigger) {
+    const dialog = makeElement('dialog', 'material-image-dialog');
+    const header = makeElement('header', 'material-image-header');
+    const title = makeElement('strong', '', name);
+    const close = materialButton('关闭', () => dialog.close(), 'secondary-button');
+    const status = makeElement('p', 'material-image-status', '正在读取图片…');
+    const image = makeElement('img');
+    let url;
+    image.alt = name;
+    image.hidden = true;
+    status.setAttribute('role', 'status');
+    dialog.setAttribute('aria-label', '图片预览 · ' + name);
+    header.append(title, close);
+    dialog.append(header, status, image);
+    dialog.onkeydown = event => {
+      if (event.key === 'Escape') event.stopPropagation();
+    };
+    dialog.onclick = event => { if (event.target === dialog) dialog.close(); };
+    dialog.onclose = () => {
+      if (url) URL.revokeObjectURL(url);
+      dialog.remove();
+      trigger.focus();
+    };
+    document.body.append(dialog);
+    dialog.showModal();
+    close.focus();
+
+    try {
+      const blob = await previewBlob(source);
+      if (!dialog.open) return;
+      url = URL.createObjectURL(blob);
+      image.src = url;
+      await image.decode();
+      if (!dialog.open) return;
+      image.hidden = false;
+      status.hidden = true;
+    } catch {
+      if (dialog.open) status.textContent = '无法预览此图片，可关闭后尝试下载原文件。';
+    }
+  }
+
+  function materialImagePreview(item, name) {
+    const source = imageSource(item, name);
+    if (!source) return null;
+    const button = materialButton('', () => openImagePreview(source, name, button), 'material-image-preview');
+    button.setAttribute('aria-label', '预览图片 · ' + name);
+    button.title = '预览图片';
+    const label = makeElement('span', '', '预览');
+    button.append(label);
+    if (!thumbnails.has(item)) thumbnails.set(item, imageThumbnail(source).catch(() => null));
+    thumbnails.get(item).then(src => {
+      if (!src || !button.isConnected) return;
+      const image = makeElement('img');
+      image.alt = '';
+      image.src = src;
+      button.replaceChildren(image);
+    });
     return button;
   }
 
@@ -175,11 +292,31 @@
         } else if (location) text.append(makeElement('small', '', location));
         else if (typeof item.size === 'number') text.append(makeElement('small', '', `${item.size.toLocaleString('zh-CN')} 字节`));
         const actions = makeElement('div', 'material-entry-actions');
-        if (typeof item.data === 'string') actions.append(materialButton('下载', () => {
-          const data = item.data.match(/^data:[^,]*;base64,([a-zA-Z0-9+/=]*)$/)?.[1];
-          if (data !== undefined) download(name, Uint8Array.from(atob(data), char => char.charCodeAt(0)), item.mime);
-        }));
+        if (item.attachmentId && !window.ringsStorage.browserOnly) {
+          const status = makeElement('small');
+          status.setAttribute('role', 'status');
+          const button = materialButton('下载', async () => {
+            button.disabled = true;
+            status.textContent = '';
+            try {
+              const contents = await window.ringsStorage.readAttachment(item.attachmentId);
+              download(name, contents, item.mime);
+            } catch (error) {
+              status.textContent = error.message;
+            } finally {
+              button.disabled = false;
+            }
+          });
+          actions.append(button, status);
+        } else if (typeof item.data === 'string') {
+          actions.append(materialButton('下载', () => {
+            const data = item.data.match(/^data:[^,]*;base64,([a-zA-Z0-9+/=]*)$/)?.[1];
+            if (data !== undefined) download(name, Uint8Array.from(atob(data), char => char.charCodeAt(0)), item.mime);
+          }));
+        }
         addActions?.(actions, item);
+        const preview = key === 'file' ? materialImagePreview(item, name) : null;
+        if (preview) row.append(preview);
         row.append(text, actions);
         root.append(row);
       }
@@ -187,81 +324,123 @@
     if (!items.length) root.append(makeElement('p', 'list-empty-hint', '暂无资料。'));
   }
 
-  function renderCandidateMaterialsOverview(root, candidate) {
-    const { checklist, materials } = normalizeCandidateParts(candidate);
-    const section = makeElement('div');
-    const shared = materials.filter(item => !item.checklistItemId);
-    section.append(makeElement('h5', 'material-group-title', `事项资料 · ${shared.length} 项`));
-    const list = makeElement('div');
-    renderMaterialGroups(list, shared);
-    section.append(list);
-    for (const row of checklist) {
-      const subset = materials.filter(item => item.checklistItemId === row.id);
-      const details = makeElement('details', 'material-checklist');
-      const summary = makeElement('summary');
-      summary.append(makeElement('strong', '', row.title), makeElement('small', '', materialCounts(subset)));
-      details.append(summary);
-      const list = makeElement('div', 'material-check-content');
-      renderMaterialGroups(list, subset);
-      details.append(list);
-      section.append(details);
+  function checklistDraft(record) {
+    const draft = normalizeCandidateParts(record);
+    const unassigned = draft.materials.filter(item => !item.checklistItemId);
+    if (unassigned.length) {
+      const existing = draft.checklist.find(row => row.legacyMaterials);
+      const row = existing || { id: newCandidatePartId(), title: '原有资料', legacyMaterials: true };
+      if (!existing) draft.checklist.push(row);
+      for (const item of unassigned) item.checklistItemId = row.id;
     }
-    root.replaceChildren(section);
+    return draft;
   }
 
-  function createCandidateMaterialsEditor(checklistRoot, materialsRoot, onChange, notify) {
-    let state = { checklist: [], materials: [] };
+  function checklistLabel(text) {
+    const firstLine = text.trim().split(/\r?\n/, 1)[0];
+    return firstLine.length > 64 ? firstLine.slice(0, 64) + '…' : firstLine;
+  }
+
+  function renderCandidateMaterialsOverview(root, candidate) {
+    const { checklist, materials } = checklistDraft(candidate);
+    root.replaceChildren();
+    for (const row of checklist) {
+      const items = materials.filter(item => item.checklistItemId === row.id);
+      const details = makeElement('details', 'material-checklist');
+      const summary = makeElement('summary');
+      summary.append(makeElement('strong', '', checklistLabel(row.title)), makeElement('small', '', materialCounts(items)));
+      const content = makeElement('div', 'material-check-content');
+      if (!row.autoTitle && row.title !== checklistLabel(row.title)) content.append(makeElement('p', 'checklist-description', row.title));
+      const list = makeElement('div');
+      renderMaterialGroups(list, items);
+      content.append(list);
+      details.append(summary, content);
+      root.append(details);
+    }
+    if (!checklist.length) root.append(makeElement('p', 'list-empty-hint', '暂无清单。'));
+  }
+
+  function createCandidateMaterialsEditor(root, notify) {
+    const sidebar = makeElement('div', 'checklist-sidebar');
+    const list = makeElement('div', 'checklist-list');
+    const editors = makeElement('div', 'checklist-editors');
+    const panels = new Map();
+    let state, selectedId;
+
+    sidebar.append(materialButton('＋ 快速新建清单', addRow, 'inline-add-button'), list);
+    root.classList.add('checklist-workspace');
+    root.replaceChildren(sidebar, editors);
 
     function owned(id) {
       return state.materials.filter(item => item.checklistItemId === id);
     }
 
+    function inferredTitle(id) {
+      const items = owned(id);
+      const file = items.find(item => materialGroup(item) === 'file');
+      if (file?.name) return file.name;
+      const reference = items[0];
+      if (reference?.url) {
+        try { return new URL(reference.url).hostname || reference.url; }
+        catch { return reference.url; }
+      }
+      return reference?.path?.split(/[\\/]+/).filter(Boolean).at(-1) || reference?.name || '';
+    }
+
+    function displayTitle(row) {
+      return checklistLabel((row.autoTitle ? '' : row.title) || inferredTitle(row.id)) || '新清单';
+    }
+
+    function updateRow(row) {
+      const entry = panels.get(row.id);
+      entry.button.firstElementChild.textContent = displayTitle(row);
+      entry.button.lastElementChild.textContent = materialCounts(owned(row.id));
+    }
+
+    function select(id) {
+      selectedId = id;
+      for (const [rowId, entry] of panels) {
+        entry.button.setAttribute('aria-pressed', String(id === rowId));
+        entry.section.hidden = id !== rowId;
+      }
+    }
+
     function refresh() {
-      const panels = [materialsRoot.firstElementChild, ...checklistRoot.querySelectorAll('.material-scope')];
-      for (const panel of panels) {
-        const id = panel.dataset.owner || null;
+      for (const row of state.checklist) updateRow(row);
+      for (const [id, entry] of panels) {
         const items = owned(id);
-        renderMaterialGroups(panel.querySelector('.material-group-list'), items, (actions, item) => {
-          const group = items.filter(entry => materialGroup(entry) === materialGroup(item));
+        renderMaterialGroups(entry.panel.querySelector('.material-group-list'), items, (actions, item) => {
+          const group = items.filter(other => materialGroup(other) === materialGroup(item));
           const previous = group[group.indexOf(item) - 1];
           if (previous) actions.append(materialButton('上移', () => {
-            const currentIndex = state.materials.indexOf(item);
-            const previousIndex = state.materials.indexOf(previous);
-            [state.materials[currentIndex], state.materials[previousIndex]] = [previous, item];
+            const from = state.materials.indexOf(item);
+            const to = state.materials.indexOf(previous);
+            [state.materials[from], state.materials[to]] = [state.materials[to], state.materials[from]];
             refresh();
           }));
-          const destinations = [{ id: null, title: '事项资料' }, ...state.checklist]
-            .filter(row => row.id !== item.checklistItemId);
+          const destinations = state.checklist.filter(other => other.id !== id);
           if (destinations.length) {
             const chooser = makeElement('details', 'material-move');
-            chooser.append(makeElement('summary', '', '移动到'));
             const choices = makeElement('div', 'material-move-options');
-            const buttons = destinations.map(destination => materialButton(destination.title.trim() || '未命名条目', () => {
+            const buttons = destinations.map(destination => materialButton(displayTitle(destination), () => {
               item.checklistItemId = destination.id;
               refresh();
-              notify(`资料已移到「${destination.title.trim() || '未命名条目'}」。`);
+              notify(`资料已移到「${displayTitle(destination)}」。`);
             }));
-            let search;
             if (buttons.length > 6) {
-              search = makeElement('input');
+              const search = makeElement('input');
               search.type = 'search';
-              search.placeholder = '搜索清单条目…';
+              search.placeholder = '搜索清单…';
               search.setAttribute('aria-label', '搜索移动目标');
               search.oninput = () => {
                 const query = search.value.trim().toLowerCase();
                 buttons.forEach(button => { button.hidden = !button.textContent.toLowerCase().includes(query); });
               };
+              chooser.ontoggle = () => { if (chooser.open) search.focus(); };
               choices.append(search);
             }
-            chooser.ontoggle = () => {
-              if (!chooser.open) return;
-              destinations.forEach((destination, index) => {
-                buttons[index].textContent = destination.title.trim() || '未命名条目';
-              });
-              if (search) { search.value = ''; search.oninput(); search.focus(); }
-            };
             choices.append(...buttons);
-            chooser.append(choices);
+            chooser.append(makeElement('summary', '', '移动到'), choices);
             actions.append(chooser);
           }
           actions.append(materialButton('移除', () => {
@@ -269,35 +448,30 @@
             refresh();
           }));
         });
-        const summary = panel.closest('.material-checklist')?.querySelector('summary');
-        if (summary) {
-          const row = state.checklist.find(item => item.id === id);
-          summary.firstElementChild.textContent = row.title.trim() || '未命名条目';
-          summary.lastElementChild.textContent = materialCounts(items);
-        }
       }
-      onChange(state.checklist.filter(row => row.title.trim()).length, owned(null).length);
     }
 
     function makePanel(id) {
       const panel = makeElement('div', 'material-scope');
       panel.dataset.owner = id || '';
       const roleGroup = 'reference-role-' + newCandidatePartId();
-      panel.innerHTML = `<div class="material-add-row">
+      panel.innerHTML = `<div class="checklist-attachment-fields">
+      <div><h5 class="material-group-title">文件</h5>
         <div class="material-file-zone" tabindex="0" role="group" aria-label="拖入或粘贴文件">
           <input type="file" multiple hidden>
           <button type="button" class="secondary-button" data-material-files>＋ 添加文件</button>
           <span>也可拖入或粘贴文件</span>
         </div>
-        <button type="button" class="secondary-button" data-material-reference aria-expanded="false">＋ 添加引用</button>
-      </div>
+        </div><div><h5 class="material-group-title">链接与路径</h5>
+        <button type="button" class="secondary-button" data-material-reference aria-expanded="false">＋ 添加链接或路径</button>
+      </div></div>
       <div class="material-reference-editor" hidden>
         <fieldset><legend>引用用途</legend>
           <label><input type="radio" name="${roleGroup}" value="source" checked> 来源引用</label>
           <label><input type="radio" name="${roleGroup}" value="target"> 整理目标</label>
         </fieldset>
         <textarea rows="3" aria-label="引用地址" placeholder="粘贴网址、本地或共享文件夹路径、网盘位置，每行一条"></textarea>
-        <button type="button" class="inline-add-button" data-save-references>添加引用</button>
+        <button type="button" class="inline-add-button" data-save-references>加入条目</button>
       </div><div class="material-group-list"></div>`;
       const fileZone = panel.querySelector('.material-file-zone');
       const fileInput = panel.querySelector('input');
@@ -330,9 +504,9 @@
         toggle.setAttribute('aria-expanded', String(!editor.hidden));
         if (!editor.hidden) { editor.querySelector('input[value="source"]').checked = true; text.focus(); }
       };
-      editor.querySelector('[data-save-references]').onclick = () => {
-        const lines = text.value.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
-        if (!lines.length) { text.focus(); return; }
+      panel.saveReferences = () => {
+        const lines = text.value.split(/\r\n|\n|\r/).map(line => line.trim()).filter(Boolean);
+        if (!lines.length) return;
         const role = editor.querySelector('input:checked').value;
         for (const line of lines) {
           const location = /^www\./i.test(line) ? 'https://' + line : line;
@@ -342,93 +516,132 @@
             role, name: location, url, path: url ? '' : location });
         }
         text.value = '';
-        toggle.click();
-        toggle.focus();
+        if (!editor.hidden) toggle.click();
+      };
+      editor.querySelector('[data-save-references]').onclick = () => {
+        panel.saveReferences();
         refresh();
+        toggle.focus();
       };
       return panel;
     }
 
+
     function appendRow(row) {
-      const details = makeElement('details', 'material-checklist');
-      const summary = makeElement('summary');
-      summary.append(makeElement('strong'), makeElement('small'));
-      const content = makeElement('div', 'material-check-content');
-      const toolbar = makeElement('div', 'material-check-toolbar');
-      const input = makeElement('input');
-      input.value = row.title;
-      input.maxLength = 160;
-      input.placeholder = '输入清单条目…';
-      input.setAttribute('aria-label', '清单条目名称');
+      const button = materialButton('', () => { refresh(); select(row.id); }, 'checklist-row');
+      button.append(makeElement('strong'), makeElement('small'));
+      const section = makeElement('section', 'checklist-editor');
+      const label = makeElement('label', 'checklist-description-field', '清单说明（可选）');
+      const input = makeElement('textarea');
+      input.rows = 3;
+      input.value = row.autoTitle ? '' : row.title;
+      input.placeholder = '写一条待办或补充几行说明，也可只添加文件或链接';
       input.oninput = () => {
         row.title = input.value;
-        summary.firstElementChild.textContent = row.title.trim() || '未命名条目';
-        onChange(state.checklist.filter(item => item.title.trim()).length, owned(null).length);
+        delete row.autoTitle;
+        delete row.legacyMaterials;
+        updateRow(row);
       };
-      toolbar.append(input, materialButton('删除条目', () => {
-        const items = owned(row.id);
-        if (items.length && !confirm(`删除这条清单？它的 ${items.length} 项资料将移回事项资料。`)) return;
-        for (const item of items) item.checklistItemId = null;
-        state.checklist.splice(state.checklist.indexOf(row), 1);
-        details.remove();
-        if (!state.checklist.length) showEmpty();
-        refresh();
-        if (items.length) notify(`已将 ${items.length} 项资料移回事项。`);
-      }));
-      content.append(toolbar, makePanel(row.id));
-      details.append(summary, content);
-      checklistRoot.append(details);
-      return { details, input };
+      label.append(input);
+      const panel = makePanel(row.id);
+      const footer = makeElement('div', 'checklist-editor-actions');
+      footer.append(materialButton('删除条目', () => removeRow(row), 'secondary-button danger'),
+        materialButton('完成条目', () => {
+          panel.saveReferences();
+          if (!row.title.trim() && !owned(row.id).length) {
+            if (pendingFiles.get(state.materials)) notify('附件仍在上传，请稍后完成。');
+            else input.focus();
+            return;
+          }
+          refresh();
+          button.focus();
+        }, 'primary-button'));
+      section.append(label, panel, footer);
+      list.querySelector('.list-empty-hint')?.remove();
+      editors.querySelector(':scope > .list-empty-hint')?.remove();
+      list.append(button);
+      editors.append(section);
+      panels.set(row.id, { button, section, panel, input });
+    }
+
+    function removeRow(row) {
+      if (pendingFiles.get(state.materials)) { notify('附件仍在上传，请稍后删除。'); return; }
+      const entry = panels.get(row.id);
+      const items = owned(row.id);
+      const hasReferences = entry.panel.querySelector('.material-reference-editor textarea').value.trim();
+      if ((items.length || hasReferences) && !confirm('删除这条清单？其中的文件和引用将移到「原有资料」。')) return;
+      entry.panel.saveReferences();
+      const retained = owned(row.id);
+      if (retained.length) {
+        let archive = state.checklist.find(item => item !== row && item.legacyMaterials);
+        if (!archive) {
+          archive = { id: newCandidatePartId(), title: '原有资料', legacyMaterials: true };
+          state.checklist.push(archive);
+          appendRow(archive);
+        }
+        for (const item of retained) item.checklistItemId = archive.id;
+      }
+      state.checklist.splice(state.checklist.indexOf(row), 1);
+      entry.button.remove();
+      entry.section.remove();
+      panels.delete(row.id);
+      if (!panels.size) showEmpty();
+      select(state.checklist[0]?.id);
+      refresh();
     }
 
     function showEmpty() {
-      checklistRoot.append(makeElement('p', 'list-empty-hint', '暂无清单条目。'));
+      list.append(makeElement('p', 'list-empty-hint', '暂无清单。'));
+      editors.append(makeElement('p', 'list-empty-hint', '新建一项，可添加说明、文件或链接。'));
     }
 
-    function reset(candidate) {
-      state = normalizeCandidateParts(candidate);
-      checklistRoot.replaceChildren();
-      materialsRoot.replaceChildren(makePanel(null));
+    function reset(record) {
+      state = checklistDraft(record);
+      panels.clear();
+      list.replaceChildren();
+      editors.replaceChildren();
       for (const row of state.checklist) appendRow(row);
-      if (!state.checklist.length) showEmpty();
+      if (!panels.size) showEmpty();
+      select(state.checklist[0]?.id);
       refresh();
     }
 
     function addRow() {
-      if (!state.checklist.length) checklistRoot.replaceChildren();
-      const row = { id: newCandidatePartId(), title: '' };
-      state.checklist.push(row);
-      const { details, input } = appendRow(row);
-      details.open = true;
+      const current = panels.get(selectedId);
+      current?.panel.saveReferences();
+      const existing = state.checklist.find(row => !row.title.trim() && !owned(row.id).length
+        && !panels.get(row.id).panel.querySelector('textarea').value.trim());
+      const row = existing || { id: newCandidatePartId(), title: '' };
+      if (!existing) {
+        state.checklist.push(row);
+        appendRow(row);
+      }
+      select(row.id);
       refresh();
-      input.focus();
+      panels.get(row.id).input.focus();
     }
 
-    function collect(previous = []) {
-      const issue = checkAttachmentDraft(state.materials, previous);
+    function collect() {
+      const issue = checkAttachmentDraft(state.materials);
       if (issue) return { issue };
-      const checklist = state.checklist.filter(row => row.title.trim()).map(row => ({ ...row, title: row.title.trim() }));
-      const ids = new Set(checklist.map(row => row.id));
-      if (state.materials.some(item => item.checklistItemId && !ids.has(item.checklistItemId))) {
-        return { issue: '请为有资料的清单条目填写名称，或将资料移到其他位置。' };
-      }
+      for (const entry of panels.values()) entry.panel.saveReferences();
+      const checklist = state.checklist.flatMap(row => {
+        const description = row.autoTitle ? '' : row.title.trim();
+        if (description) return [{ ...row, title: description }];
+        const title = inferredTitle(row.id);
+        return title ? [{ ...row, title, autoTitle: true }] : [];
+      });
+      refresh();
       return { checklist, materials: state.materials.map(item => ({ ...item })) };
     }
 
-    return { reset, addRow, collect };
+    reset();
+    return { reset, collect };
   }
 
-  function checkAttachmentDraft(draft, oldMaterials = []) {
-    if (pendingFiles.get(draft)) return '附件仍在读取，请稍后保存。';
-    const size = draft.reduce((sum, item) => sum + (item.data?.length || 0), 0);
-    if (!size) return '';
-    const previous = oldMaterials.reduce((sum, item) => sum + (item.data?.length || 0), 0);
-    if (!window.ringsStorage.browserOnly) {
-      return window.ringsStorage.size() + size - previous > 30 * MB ? '工作台附件接近存储上限。请先导出备份并移除不需要的附件。' : '';
-    }
-    const used = Array.from({ length: localStorage.length }, (_, index) => localStorage.key(index))
-      .reduce((sum, key) => sum + key.length + (localStorage.getItem(key)?.length || 0), 0);
-    return used + size - previous > 4.5 * MB ? '浏览器存储空间不足。请减少附件或先导出备份。' : '';
+  function checkAttachmentDraft(draft) {
+    if (pendingFiles.get(draft)) return '附件仍在上传，请稍后保存。';
+    return '';
   }
 
   window.ringsWorkspaceData = { exportBackup, downloadBackup, parseBackup, restoreBackup,

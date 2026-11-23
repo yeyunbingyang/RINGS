@@ -140,7 +140,7 @@ v0.3 补齐 Task / Habit 管理、按日期保存 HabitOccurrence、Candidate �
 - 交付记录：`04-delivery/execution-candidate-v0.3.1-release.md`
 - 会话附件：`RINGS-v0.3.1-execution-context.html`、`RINGS-v0.3.1-delivery.zip`
 
-v0.3.1 在 v0.3 基础上增加 Candidate 资料附件列表、Task Work Context 和独立专注页。附件仅为浏览器原型存储，限制 1MB / 文件、3MB / Candidate；正式文件服务尚未实现。
+v0.3.1 在 v0.3 基础上增加 Candidate 资料附件列表、Task Work Context 和独立专注页。历史原型的浏览器存储限制已取消：本机服务模式将附件作为独立文件存放于 `data/attachments/`，不限制文件大小；工作台 JSON 仅保存附件引用。
 
 
 ## 15. 规划工作区 v0.8

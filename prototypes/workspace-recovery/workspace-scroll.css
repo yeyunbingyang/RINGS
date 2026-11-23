@@ -1,0 +1,97 @@
+/* 工作台和甘特图共用桌面滚动样式。 */
+:root {
+  --rings-scroll-track: #f1f5f0;
+  --rings-scroll-thumb: #819a88;
+  --rings-scroll-thumb-active: #557661;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--rings-scroll-thumb) var(--rings-scroll-track);
+}
+
+@supports selector(::-webkit-scrollbar) {
+  * { scrollbar-width: auto; scrollbar-color: auto; }
+  ::-webkit-scrollbar { width: 9px; height: 9px; }
+  ::-webkit-scrollbar-track { background: var(--rings-scroll-track); border-radius: 10px; }
+  ::-webkit-scrollbar-thumb {
+    background: var(--rings-scroll-thumb);
+    border: 2px solid var(--rings-scroll-track);
+    border-radius: 10px;
+  }
+  ::-webkit-scrollbar-thumb:hover { background: var(--rings-scroll-thumb-active); }
+  ::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
+  ::-webkit-scrollbar-corner { background: var(--rings-scroll-track); }
+}
+
+.rings-scroll-modal {
+  position: relative;
+  max-height: min(88dvh, 820px);
+}
+.rings-scroll-modal > :is(.modal-head, .modal-actions, .mhead, .mfoot) { flex: none; }
+.rings-scroll-modal > :is(.modal-scroll, .mbody) {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.rings-scroll-modal > .rings-scroll-body {
+  padding-inline-end: max(22px, var(--rings-modal-content-gutter, 22px));
+  scrollbar-width: none;
+  scrollbar-gutter: auto;
+}
+.rings-scroll-body::-webkit-scrollbar { display: none; }
+
+:is(#createForm, #taskEditForm, #candidateDetailForm, #executionCreateForm).rings-scroll-modal {
+  width: min(880px, calc(100vw - 32px));
+}
+#planningDirectionForm.rings-scroll-modal,
+#directionGoalForm.rings-scroll-modal {
+  width: min(560px, calc(100vw - 32px));
+}
+.rings-scroll-modal > .modal-head,
+.rings-scroll-modal > .mhead {
+  background: #fbfdfa;
+  border-bottom: 1px solid #e1eae1;
+}
+.rings-scroll-modal > .modal-actions,
+.rings-scroll-modal > .mfoot {
+  background: #fff;
+  border-top: 1px solid #e1eae1;
+}
+
+.rings-floating-scroll {
+  position: absolute;
+  z-index: 4;
+  right: 3px;
+  width: 16px;
+  touch-action: none;
+  cursor: default;
+}
+.rings-floating-scroll::before, .rings-floating-thumb {
+  position: absolute;
+  right: 5px;
+  width: 5px;
+  border-radius: 8px;
+}
+.rings-floating-scroll::before { content: ""; inset-block: 0; background: var(--rings-scroll-track); }
+.rings-floating-thumb { background: var(--rings-scroll-thumb); cursor: grab; }
+.rings-floating-scroll:hover .rings-floating-thumb,
+.rings-floating-scroll:focus-visible .rings-floating-thumb,
+.rings-floating-scroll[data-dragging] .rings-floating-thumb {
+  width: 7px;
+  right: 4px;
+  background: var(--rings-scroll-thumb-active);
+}
+.rings-floating-scroll[data-dragging] .rings-floating-thumb { cursor: grabbing; }
+.rings-floating-scroll:focus-visible { outline: 2px solid #527962; border-radius: 6px; }
+.rings-floating-scroll[hidden] { display: none; }
+
+@media (forced-colors: active) {
+  * { scrollbar-color: auto; }
+  .rings-scroll-modal > .rings-scroll-body { scrollbar-width: auto; scrollbar-gutter: stable; }
+  .rings-scroll-body::-webkit-scrollbar { display: initial; }
+  .rings-floating-scroll { display: none; }
+}
