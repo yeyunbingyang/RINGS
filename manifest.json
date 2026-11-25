@@ -29,7 +29,7 @@
     }
   },
   "web": {
-    "port": 18759,
+    "port": 28702,
     "openPath": "/",
     "healthPath": "/health"
   }

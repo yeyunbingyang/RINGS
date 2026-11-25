@@ -20,13 +20,20 @@ $actionNames = @{ '1' = '启动'; '2' = '环境检查'; '3' = '环境安装'; '4
 $build = Join-Path $scriptDirectory 'build-exe.ps1'
 if (Test-Path -LiteralPath $build -PathType Leaf) { $actions['4'] = $build }
 
+$actions['9'] = Join-Path $PSScriptRoot 'stop-webui.ps1'
+$actionNames['9'] = '停止服务'
+
+. (Join-Path $PSScriptRoot 'PluginWebPort.ps1')
+
 while ($true) {
     Write-Host "`n$projectName 综合菜单" -ForegroundColor Cyan
     Write-Host '[1] 启动' -ForegroundColor Green
     Write-Host '[2] 环境检查' -ForegroundColor Cyan
     Write-Host '[3] 环境安装' -ForegroundColor Yellow
     if ($actions.ContainsKey('4')) { Write-Host '[4] 打包 EXE' -ForegroundColor Magenta }
+    Write-Host '[9] 停止独立 WebUI' -ForegroundColor DarkYellow
     Write-Host '[0] 退出'
+    $menuPort = Show-PluginWebPort -PreferredPort 28702
     $choice = Read-Host '请选择'
     if ($null -eq $choice -or $choice.Trim() -eq '0') { exit 0 }
     $choice = $choice.Trim()
@@ -35,7 +42,13 @@ while ($true) {
         continue
     }
     try {
-        [void](Invoke-LoggedPluginOperation -Name $actionNames[$choice] -Entry $actions[$choice] -ProjectRoot $projectRoot)
+        $previousPlannedPort = $env:TOOLORBIT_PLANNED_PLUGIN_PORT
+        try {
+            if ($choice -eq '1') { $env:TOOLORBIT_PLANNED_PLUGIN_PORT = $menuPort }
+            [void](Invoke-LoggedPluginOperation -Name $actionNames[$choice] -Entry $actions[$choice] -ProjectRoot $projectRoot)
+        } finally {
+            $env:TOOLORBIT_PLANNED_PLUGIN_PORT = $previousPlannedPort
+        }
     } catch {
         Write-Host $_.Exception.Message -ForegroundColor Red
     }

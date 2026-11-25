@@ -43,7 +43,8 @@
       if (core[key] !== undefined && (!Array.isArray(core[key]) ||
         !core[key].every(item => validRecord(item) && validId(item.id)))) throw new Error('备份数据结构无效');
     }
-    if (core.trash?.some(item => !['task', 'habit', 'goal', 'candidate', 'event'].includes(item.type) ||
+    if (core.trash?.some(item => !['task', 'subtask', 'habit', 'goal', 'candidate', 'event'].includes(item.type) ||
+      (item.type === 'subtask' && (!validId(item.parentTaskId) || item.parentTaskId !== item.record?.parentTaskId)) ||
       !validRecord(item.record) || !validId(item.record.id) || typeof item.deletedAt !== 'string' ||
       !Array.isArray(item.linkedPlans) || !Array.isArray(item.links))) throw new Error('回收站记录无效');
     for (const nav of [core.navConfig, data['rings-nav-config-v08']]) {

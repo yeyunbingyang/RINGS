@@ -95,4 +95,9 @@ const server = createServer((request, response) => {
 });
 
 server.once('close', () => store.close());
+server.once('error', error => {
+  console.error(error.message);
+  store.close();
+  process.exitCode = ['EACCES', 'EADDRINUSE'].includes(error.code) ? 98 : 1;
+});
 server.listen(port, host, () => console.log(`[服务] RINGS 已就绪，${origin}/`));

@@ -1,13 +1,17 @@
-﻿param([string]$HostAddress = '127.0.0.1', [int]$Port = 18759)
+﻿param([ValidateSet('127.0.0.1')][string]$HostAddress = '127.0.0.1', [int]$Port = 28702)
 
 $ErrorActionPreference = 'Stop'
 try {
     . (Join-Path $PSScriptRoot 'OperationLog.ps1')
     Set-PluginOutputEncoding
     . (Join-Path $PSScriptRoot 'ProjectActions.ps1')
+    . (Join-Path $PSScriptRoot 'PluginWebPort.ps1')
+    $fixedPort = $PSBoundParameters.ContainsKey('Port')
+    $plannedPort = Show-PluginWebPort -PreferredPort $Port -Fixed:$fixedPort
+    if ($null -eq $plannedPort) { exit 98 }
     $id = Split-Path -Leaf $projectRoot
     if ($MyInvocation.MyCommand.Name -eq 'start-webui.ps1') {
-        Write-Host "[启动] $id · WebUI · 工作目录 $projectRoot · 计划监听 ${HostAddress}:$Port"
+        Write-Host "[启动] $id · WebUI · 工作目录 $projectRoot · 预选 ${HostAddress}:$plannedPort"
     } else {
         Write-Host "[启动] $id · 本机应用 · 工作目录 $projectRoot"
     }
@@ -30,11 +34,15 @@ try {
         }
         try {
             Write-Host '[启动] 正在运行应用。'
-            $appCode = Start-ProjectApplication -HostAddress $HostAddress -Port $Port
+            $appCode = Invoke-PluginWebStart -PreferredPort $Port -PlannedPort $plannedPort -Fixed:$fixedPort -Start {
+                param($selectedPort)
+                Start-ProjectApplication -HostAddress $HostAddress -Port $selectedPort
+            }
         } catch {
             Write-Error $_ -ErrorAction Continue
             $appCode = Get-PluginFailureCode -Failure $_
         }
+        if ($appCode -eq 98) { exit $appCode }
         if ($appCode -eq 0) {
             Write-Host '[退出] 应用正常退出，退出码 0。'
             exit 0
